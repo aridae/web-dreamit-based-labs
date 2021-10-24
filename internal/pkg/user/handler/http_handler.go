@@ -3,14 +3,14 @@ package handler
 import (
 	"encoding/json"
 	"io/ioutil"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/server/tools/http_utils"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/server/tools/http_utils"
 	"net/http"
 	"strconv"
 	"strings"
 
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/models"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/session"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/user"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/session"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/user"
 )
 
 type UserHandler struct {

@@ -1,6 +1,6 @@
 package session
 
-import "lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/models"
+import "github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
 
 type Repository interface {
 	InsertToken(userId uint64, token *models.TokenDetails) error

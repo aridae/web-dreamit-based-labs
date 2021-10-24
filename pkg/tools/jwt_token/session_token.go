@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/models"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/pkg/tools/configer"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
+	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/configer"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/twinj/uuid"

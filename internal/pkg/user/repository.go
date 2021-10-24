@@ -1,6 +1,6 @@
 package user
 
-import "lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/models"
+import "github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
 
 type Repository interface {
 	InsertUser(user *models.UserData) (uint64, error)

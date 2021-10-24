@@ -1,4 +1,4 @@
-module lab.qoollo.com/practice/2021/dreamit/dreamit-api
+module github.com/aridae/web-dreamit-api-based-labs
 
 go 1.15
 
@@ -11,7 +11,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/jmoiron/sqlx v1.3.4
-	github.com/labstack/echo/v4 v4.4.0 // indirect
 	github.com/lib/pq v1.10.2
 	github.com/myesui/uuid v1.0.0 // indirect
 	github.com/onsi/gomega v1.14.0 // indirect
@@ -23,6 +22,7 @@ require (
 	golang.org/x/net v0.0.0-20210716203947-853a461950ff // indirect
 	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
+	google.golang.org/api v0.50.0
 	google.golang.org/genproto v0.0.0-20210716133855-ce7ef5c701ea // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/square/go-jose.v2 v2.6.0

@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/models"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/user"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/pkg/tools/db_sql"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/user"
+	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/db_sql"
 
 	"github.com/jmoiron/sqlx"
 )

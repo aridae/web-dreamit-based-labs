@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/models"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/session"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/session"
 
 	"github.com/go-redis/redis"
 )

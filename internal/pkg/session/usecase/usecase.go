@@ -1,9 +1,9 @@
 package usecase
 
 import (
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/models"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/session"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/pkg/tools/jwt_token"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/session"
+	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/jwt_token"
 )
 
 type SessionUseCase struct {

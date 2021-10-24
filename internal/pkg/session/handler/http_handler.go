@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/server/tools/http_utils"
 	"net/http"
 
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/session"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/pkg/tools/jwt_token"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/server/tools/http_utils"
+
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/session"
+	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/jwt_token"
 )
 
 type SessionHandler struct {

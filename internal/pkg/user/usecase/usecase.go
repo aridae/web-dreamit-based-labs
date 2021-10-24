@@ -6,16 +6,16 @@ import (
 	"encoding/json"
 	"gopkg.in/square/go-jose.v2/jwt"
 	"io/ioutil"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/pkg/tools/configer"
+	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/configer"
 	"net/http"
 	net_rul "net/url"
 
 	"fmt"
 
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/models"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/internal/pkg/user"
-	//"lab.qoollo.com/practice/2021/dreamit/dreamit-api/pkg/tools/configer"
-	"lab.qoollo.com/practice/2021/dreamit/dreamit-api/pkg/tools/hasher"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/user"
+	//"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/configer"
+	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/hasher"
 
 	oidc "github.com/coreos/go-oidc"
 	"golang.org/x/oauth2"
