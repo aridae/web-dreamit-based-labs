@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  server_db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./scripts/postgresql/init_api_db.sql:/docker-entrypoint-initdb.d/init_api_db.sql
+    networks:
+      - app-network
+  redis:
+    image: redis
+    restart: unless-stopped
+    networks:
+      - app-network
+  keycloak:
+    image: jboss/keycloak:4.1.0.Final
+    restart: unless-stopped
+    networks:
+      - app-network
+    environment:
+      - KEYCLOAK_USER=keycloak
+      - KEYCLOAK_PASSWORD=k
+    ports:
+      - "8081:8080"
+  server:
+    depends_on:
+      - server_db
+      - redis
+    build: .
+    restart: unless-stopped
+    volumes:
+      - ./configs/app/api_server.yaml:/configs/app/api_server.yaml
+      - ./configs/app/credentials.json:/credentials.json
+      - ./configs/app/token.json:/token.json
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,26 @@
+oauth2-app-data:
+  keycloak-app-data:
+    client-id: "demo-client"
+    client-secret: "0b419728-62c3-4acd-b3df-1cedac542e88"
+    redirect-url: "http://localhost:80/api/v1/user/oauth/keycloak"
+    config-url: "http://keycloak:8080/auth/realms/demo"
+
+secrets-data:
+  access-secret: "safasf"
+  refresh-secret: "asfasfasf"
+
+server-data:
+  host: ""
+  port: "8080"
+
+redis-data:
+  addr: "redis:6379"
+  password: ""
+
+postgresql-data:
+  user: "postgres"
+  password: "postgres"
+  db-name: "dreamit_api_db"
+  port: "5432"
+  host: "server_db"
+  sslmode: "disable"

@@ -1,0 +1,12 @@
+stages: 
+  - build
+
+
+build:
+  stage: build
+  image: ubuntu:latest
+  when: manual
+  tags: 
+    - docker-policesoft-runner
+  script: 
+    - docker build -t dreamit:test .
