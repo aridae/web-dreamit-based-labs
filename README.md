@@ -21,6 +21,9 @@
 
 
 ## Команды для докера 
+
+Это шпора, а не пайплайн -- не надо их все запускать)))
+
 Cобрать контейнеры: 
 ```bash
 docker-compose up -d --force-recreate --remove-orphans
