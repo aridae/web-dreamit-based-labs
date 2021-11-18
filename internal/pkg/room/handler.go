@@ -4,10 +4,9 @@ import "net/http"
 
 type Handler interface {
 	GetAllRooms(w http.ResponseWriter, r *http.Request)
-	GetRoomCalendar(w http.ResponseWriter, r *http.Request)
-	GetRoomSchedule(w http.ResponseWriter, r *http.Request)
-	UpdateRoomBooking(w http.ResponseWriter, r *http.Request)
-	AddRoomBooking(w http.ResponseWriter, r *http.Request)
-	DeleteRoomBooking(w http.ResponseWriter, r *http.Request)
-	MyRoomBooking(w http.ResponseWriter, r *http.Request)
+	GetRoomEvents(w http.ResponseWriter, r *http.Request)
+	UpdateRoomEvent(w http.ResponseWriter, r *http.Request)
+	AddRoomEvent(w http.ResponseWriter, r *http.Request)
+	DeleteRoomEvent(w http.ResponseWriter, r *http.Request)
+	MyRoomEvents(w http.ResponseWriter, r *http.Request)
 }

@@ -1,4 +1,4 @@
-package models
+package apimodels
 
 type Room struct {
 	Id    int64  `json:"id"`

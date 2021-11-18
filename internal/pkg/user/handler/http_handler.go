@@ -3,12 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"io/ioutil"
-	"github.com/aridae/web-dreamit-api-based-labs/internal/server/tools/http_utils"
 	"net/http"
-	"strconv"
 	"strings"
 
-	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/server/tools/http_utils"
+
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/api_models"
 	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/session"
 	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/user"
 )
@@ -26,7 +26,7 @@ func NewHandler(userUCase user.UseCase, sessionUCase session.UseCase) user.Handl
 }
 
 func (u *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
-	signupUser := &models.SignupUserRequest{}
+	signupUser := &api_models.SignupUserRequest{}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http_utils.SetJSONResponse(w, "Invalid json provided", http.StatusBadRequest)
@@ -55,38 +55,8 @@ func (u *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (u *UserHandler) GetSelfProfile(w http.ResponseWriter, r *http.Request) {
-	userIdString, _ := strconv.Atoi(r.URL.Query().Get("userId"))
-	userId := uint64(userIdString)
-	userData, err := u.userUCase.GetSelfProfile(userId)
-	if err != nil {
-		http_utils.SetJSONResponse(w, "User not found", http.StatusInternalServerError)
-		return
-	}
-
-	http_utils.SetJSONResponse(w, userData, http.StatusOK)
-}
-
-func (u *UserHandler) LogInKeycloak(w http.ResponseWriter, r *http.Request) {
-	index := strings.Index(r.RequestURI, "code")
-	code := string([]rune(r.RequestURI)[index+5:])
-	userId, err := u.userUCase.LogInKeycloak(code)
-
-	if err != nil {
-		http_utils.SetJSONResponse(w, err, http.StatusUnauthorized)
-		return
-	}
-
-	token, err := u.sessUCase.CreateNewSession(userId)
-	if err != nil {
-		http_utils.SetJSONResponse(w, err, http.StatusInternalServerError)
-		return
-	}
-	http_utils.SetJSONResponse(w, token, http.StatusOK)
-}
-
 func (u *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
-	loginUser := &models.LoginUserRequest{}
+	loginUser := &api_models.LoginUserRequest{}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http_utils.SetJSONResponse(w, "Invalid json provided", http.StatusBadRequest)
@@ -126,23 +96,21 @@ func (u *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	http_utils.SetJSONResponse(w, "OK", http.StatusOK)
 }
 
-func (u *UserHandler) DeleteSelfProfile(w http.ResponseWriter, r *http.Request) {
-	Uuid := r.URL.Query().Get("Uuid")
+// как это аннотировать я не поняла..
+func (u *UserHandler) LogInKeycloak(w http.ResponseWriter, r *http.Request) {
+	index := strings.Index(r.RequestURI, "code")
+	code := string([]rune(r.RequestURI)[index+5:])
+	userId, err := u.userUCase.LogInKeycloak(code)
 
-	err := u.sessUCase.DestroySession(Uuid)
 	if err != nil {
-		http_utils.SetJSONResponse(w, "can't remove session", http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, err, http.StatusUnauthorized)
 		return
 	}
 
-	userIdString, _ := strconv.Atoi(r.URL.Query().Get("userId"))
-	userId := uint64(userIdString)
-
-	err = u.userUCase.DeleteSelfProfile(userId)
+	token, err := u.sessUCase.CreateNewSession(userId)
 	if err != nil {
-		http_utils.SetJSONResponse(w, "can't remove profile", http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, err, http.StatusInternalServerError)
 		return
 	}
-
-	http_utils.SetJSONResponse(w, "OK", http.StatusOK)
+	http_utils.SetJSONResponse(w, token, http.StatusOK)
 }

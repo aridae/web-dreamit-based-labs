@@ -92,3 +92,66 @@ CREATE TABLE calendar (
                           author BIGINT NOT NULL REFERENCES users(id)
 );
 GRANT ALL PRIVILEGES ON TABLE calendar TO dreamit_root;
+
+-- ОСТАВЬ НАДЕЖДУ ВСЯК СЮДА ВХОДЯЩИЙ --
+
+-- справочник статутов инвайта 
+DROP TABLE IF EXISTS invite_status_dict CASCADE;
+CREATE TABLE invite_status_dict (
+   id SERIAL NOT NULL PRIMARY KEY, 
+   "status" TEXT NOT NULL,
+)
+GRANT ALL PRIVILEGES ON TABLE invite_status_dict TO dreamit_root;
+INSERT INTO invite_status_dict(id, "status") VALUES (0, 'pending');
+INSERT INTO invite_status_dict(id, "status") VALUES (1, 'accepted');
+INSERT INTO invite_status_dict(id, "status") VALUES (2, 'declined');
+INSERT INTO invite_status_dict(id, "status") VALUES (3, 'expired');
+
+-- табличка инвайтов 
+-- автором инвайта считаем автора ивента (только он может кидать инвайт)
+-- у одного инвайта может быть много получателй 
+-- у одного получателя можеть быть много инвайтов 
+DROP TABLE IF EXISTS invites CASCADE;
+CREATE TABLE invites (
+   id SERIAL NOT NULL PRIMARY KEY, 
+   eventId BIGINT NOT NULL REFERENCES calendar(id),
+   receiverId BIGINT NOT NULL REFERENCES users(id),
+   statusId BIGINT NOT NULL REFERENCES invite_status_dict(id),
+)
+GRANT ALL PRIVILEGES ON TABLE invites TO dreamit_root;
+
+-- табличка нотифаев -- сообщенек участникам ивента --
+DROP TABLE IF EXISTS notifies CASCADE;
+CREATE TABLE notifies (
+   id SERIAL NOT NULL PRIMARY KEY, 
+   eventId BIGINT NOT NULL REFERENCES calendar(id),
+   "subject" TEXT NOT NULL,  
+   "message" TEXT NOT NULL, 
+)
+GRANT ALL PRIVILEGES ON TABLE notifies TO dreamit_root;
+
+-- теги
+DROP TABLE IF EXISTS notify_tags CASCADE;
+CREATE TABLE notify_tags (
+   if SERIAL NOT NULL PRIMARY KEY,
+   tag TEXT NOT NULL,
+   notifyId BIGINT NOT NULL REFERENCES notifies(id),
+)
+GRANT ALL PRIVILEGES ON TABLE notify_tags TO dreamit_root;
+
+-- CREATE TYPE filtered_notifies as (
+--    id SERIAL NOT NULL PRIMARY KEY, 
+--    eventId BIGINT NOT NULL REFERENCES calendar(id),
+--    "subject" TEXT NOT NULL,  
+--    "message" TEXT NOT NULL, 
+-- )
+-- CREATE OR REPLACE FUNCTION filter_notifies() RETURNS TABLE
+-- $$$$
+
+DROP TABLE IF EXISTS comments CASCADE;
+CREATE TABLE comments (
+   id SERIAL NOT NULL PRIMARY KEY,
+   authorId BIGINT NOT NULL REFERENCES users(id),
+   notifyId BIGINT NOT NULL REFERENCES notifies(id),
+   "message" TEXT NOT NULL,
+)

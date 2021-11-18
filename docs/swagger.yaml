@@ -1,0 +1,1019 @@
+basePath: /api/v2
+definitions:
+  apimodels.Comment:
+    properties:
+      authorId:
+        type: integer
+      id:
+        type: integer
+      message:
+        type: string
+      notifyId:
+        type: integer
+    type: object
+  apimodels.Event:
+    properties:
+      author:
+        type: integer
+      end:
+        type: string
+      id:
+        type: integer
+      roomId:
+        type: integer
+      start:
+        type: string
+      title:
+        type: string
+    type: object
+  apimodels.Invite:
+    properties:
+      eventId:
+        type: integer
+      id:
+        type: integer
+      receiverId:
+        type: integer
+      status:
+        type: integer
+    type: object
+  apimodels.LoginUserRequest:
+    properties:
+      emailOrLogin:
+        type: string
+      password:
+        type: string
+    type: object
+  apimodels.MessageResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  apimodels.Notify:
+    properties:
+      eventId:
+        type: integer
+      id:
+        type: integer
+      message:
+        type: string
+      subject:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  apimodels.PatchEvent:
+    properties:
+      end:
+        type: string
+      roomId:
+        type: integer
+      start:
+        type: string
+    type: object
+  apimodels.PostComment:
+    properties:
+      message:
+        type: string
+      notifyId:
+        type: integer
+    type: object
+  apimodels.PostEvent:
+    properties:
+      end:
+        type: string
+      roomId:
+        type: integer
+      start:
+        type: string
+      title:
+        type: string
+    type: object
+  apimodels.PostInvite:
+    properties:
+      eventId:
+        type: integer
+      receiverId:
+        type: integer
+    type: object
+  apimodels.PostNotify:
+    properties:
+      eventId:
+        type: integer
+      message:
+        type: string
+      subject:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  apimodels.Room:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  apimodels.SignupUserRequest:
+    properties:
+      email:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  apimodels.SuccessPostComment:
+    properties:
+      id:
+        type: integer
+    type: object
+  apimodels.SuccessPostEvent:
+    properties:
+      id:
+        type: integer
+    type: object
+  apimodels.SuccessPostInvite:
+    properties:
+      id:
+        type: integer
+    type: object
+  apimodels.SuccessPostNotify:
+    properties:
+      id:
+        type: integer
+    type: object
+  apimodels.Token:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Swagger API for Dreamit-based web labs
+  termsOfService: http://swagger.io/terms/
+  title: Dreamit Swagger API
+  version: "2.0"
+paths:
+  /comments:
+    get:
+      description: Get notify comments collection
+      parameters:
+      - description: Notify to filter comments for, obligatory
+        in: query
+        name: notifyId
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/apimodels.Comment'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get notify comments collection
+      tags:
+      - comment
+    post:
+      consumes:
+      - application/json
+      description: Create comment and get id
+      parameters:
+      - description: New comment
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/apimodels.PostComment'
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/apimodels.SuccessPostComment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create new comment
+      tags:
+      - comment
+  /comments/{id}:
+    delete:
+      description: Delete comment by id
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete comment
+      tags:
+      - comment
+    get:
+      description: Get comment by id
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.Comment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get comment
+      tags:
+      - comment
+  /events:
+    get:
+      description: Get events collection filtered by query parameters
+      parameters:
+      - description: Author ID
+        in: query
+        name: authorId
+        type: integer
+      - description: Room ID
+        in: query
+        name: roomId
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/apimodels.Event'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get events collection
+      tags:
+      - event
+    post:
+      consumes:
+      - application/json
+      description: Create event and get id
+      parameters:
+      - description: New event to add to the system
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/apimodels.PostEvent'
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/apimodels.SuccessPostEvent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Post event
+      tags:
+      - event
+  /events/{id}:
+    delete:
+      description: Delete event by id
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete event
+      tags:
+      - event
+    get:
+      description: Get event by id
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.Event'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get event
+      tags:
+      - event
+    patch:
+      consumes:
+      - application/json
+      description: Patch event roomId, start and end datetime by event id
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Patch editions to apply
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/apimodels.PatchEvent'
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Reschedule event
+      tags:
+      - event
+  /invites:
+    get:
+      description: Get invites collection filtered by query parameters
+      parameters:
+      - description: Receiver ID
+        in: query
+        name: receiverId
+        type: integer
+      - description: Event ID
+        in: query
+        name: eventId
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/apimodels.Invite'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get invites collection
+      tags:
+      - invite
+    post:
+      consumes:
+      - application/json
+      description: Create invite and get id
+      parameters:
+      - description: New invite to add to the system
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/apimodels.PostInvite'
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/apimodels.SuccessPostInvite'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Post new invite
+      tags:
+      - invite
+  /invites/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete invite by id
+      parameters:
+      - description: Invite ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete invite by id
+      tags:
+      - invite
+    get:
+      description: Get invite by id
+      parameters:
+      - description: Invite ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.Invite'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get invite
+      tags:
+      - invite
+  /notifies:
+    get:
+      description: Get notifies collection filtered by query parameters
+      parameters:
+      - description: Tags to filter notifies, any, optional
+        in: query
+        items:
+          type: string
+        name: tags
+        type: array
+      - description: Subject to filter notifies, single-match, optional
+        in: query
+        name: subject
+        type: string
+      - description: Event to filter notifies for, obligatory
+        in: query
+        name: eventId
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/apimodels.Notify'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get notifies collection
+      tags:
+      - notify
+    post:
+      consumes:
+      - application/json
+      description: Create notify and get id
+      parameters:
+      - description: New notify to add to the system
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/apimodels.PostNotify'
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/apimodels.SuccessPostNotify'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create new notify
+      tags:
+      - notify
+  /notifies/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete notify by id
+      parameters:
+      - description: Notify ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete notify by id
+      tags:
+      - notify
+    get:
+      description: Get notify by id
+      parameters:
+      - description: Notify ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.Notify'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get notify
+      tags:
+      - notify
+  /rooms:
+    get:
+      description: Get all rooms available in the system for booking
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/apimodels.Room'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      summary: Get all rooms
+      tags:
+      - room
+  /rooms/{id}:
+    get:
+      description: Get room by id
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/apimodels.Room'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      summary: Get room
+      tags:
+      - room
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get users collection
+      parameters:
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get users collection
+      tags:
+      - user
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get user by id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user
+      tags:
+      - user
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Logging user in by retrieving his data from the database
+      parameters:
+      - description: User log in data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/apimodels.LoginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.Token'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      summary: Logging user in
+      tags:
+      - user
+  /users/logout:
+    post:
+      description: Logging user in out
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      summary: Logging user out
+      tags:
+      - user
+  /users/signup:
+    post:
+      consumes:
+      - application/json
+      description: Signing user up by adding him to the database
+      parameters:
+      - description: User sign up data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/apimodels.SignupUserRequest'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      summary: Signing user up
+      tags:
+      - user
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

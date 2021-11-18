@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/api_models"
 	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/session"
 	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/jwt_token"
 )
@@ -25,7 +25,7 @@ func (u *SessionUseCase) GetUserIdByAccessToken(Uuid string) (uint64, error) {
 	return userId, nil
 }
 
-func (u *SessionUseCase) CreateNewSession(userId uint64) (*models.Token, error) {
+func (u *SessionUseCase) CreateNewSession(userId uint64) (*api_models.Token, error) {
 	token, err := jwt_token.CreateJwtToken()
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (u *SessionUseCase) DestroySession(Uuid string) error {
 	return nil
 }
 
-func (u *SessionUseCase) RefreshSession(Uuid string) (*models.Token, error) {
+func (u *SessionUseCase) RefreshSession(Uuid string) (*api_models.Token, error) {
 	userId, err := u.sessionRepo.SelectUserIdByRefreshToken(Uuid)
 	if err != nil {
 		return nil, err

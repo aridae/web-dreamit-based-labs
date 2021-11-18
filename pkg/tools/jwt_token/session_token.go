@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/api_models"
 	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/configer"
 
 	"github.com/dgrijalva/jwt-go"
@@ -21,14 +21,14 @@ const (
 	Refresh
 )
 
-func CreateJwtToken() (*models.TokenDetails, error) {
-	tokenDetails := &models.TokenDetails{}
+func CreateJwtToken() (*api_models.TokenDetails, error) {
+	tokenDetails := &api_models.TokenDetails{}
 	Uuid := uuid.NewV4().String()
 	// Setting Token Details
-	tokenDetails.AccessDetails.Expires = time.Now().Add(models.AccessTokenExpires).Unix()
+	tokenDetails.AccessDetails.Expires = time.Now().Add(api_models.AccessTokenExpires).Unix()
 	tokenDetails.AccessDetails.Uuid = Uuid
 
-	tokenDetails.RefreshDetails.Expires = time.Now().Add(models.RefreshTokenExpires).Unix()
+	tokenDetails.RefreshDetails.Expires = time.Now().Add(api_models.RefreshTokenExpires).Unix()
 	tokenDetails.RefreshDetails.Uuid = Uuid
 
 	var err error
@@ -108,7 +108,7 @@ func TokenValid(r *http.Request, tokenType TokenType) error {
 	return nil
 }
 
-func ExtractAccessTokenMetadata(r *http.Request) (*models.AccessTokenDetails, error) {
+func ExtractAccessTokenMetadata(r *http.Request) (*api_models.AccessTokenDetails, error) {
 	token, err := VerifyToken(r, Access)
 	if err != nil {
 		return nil, err
@@ -119,14 +119,14 @@ func ExtractAccessTokenMetadata(r *http.Request) (*models.AccessTokenDetails, er
 		if !ok {
 			return nil, err
 		}
-		return &models.AccessTokenDetails{
+		return &api_models.AccessTokenDetails{
 			Uuid: accessUuid,
 		}, nil
 	}
 	return nil, err
 }
 
-func ExtractRefreshTokenMetadata(r *http.Request) (*models.RefreshTokenDetails, error) {
+func ExtractRefreshTokenMetadata(r *http.Request) (*api_models.RefreshTokenDetails, error) {
 	token, err := VerifyToken(r, Refresh)
 	if err != nil {
 		return nil, err
@@ -137,7 +137,7 @@ func ExtractRefreshTokenMetadata(r *http.Request) (*models.RefreshTokenDetails, 
 		if !ok {
 			return nil, err
 		}
-		return &models.RefreshTokenDetails{
+		return &api_models.RefreshTokenDetails{
 			Uuid: accessUuid,
 		}, nil
 	}

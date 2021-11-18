@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/api_models"
 	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/user"
 	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/db_sql"
 
@@ -21,7 +21,7 @@ func NewRepository(conn *sqlx.DB) user.Repository {
 	}
 }
 
-func (r *UserRepository) InsertUser(user *models.UserData) (uint64, error) {
+func (r *UserRepository) InsertUser(user *api_models.UserData) (uint64, error) {
 	var userId uint64
 	err := r.dbConn.Get(
 		&userId,
@@ -41,7 +41,7 @@ func (r *UserRepository) InsertUser(user *models.UserData) (uint64, error) {
 	return userId, nil
 }
 
-func (r *UserRepository) SelectUserByEmailOrLogin(emailOrLogin string) (*models.UserData, error) {
+func (r *UserRepository) SelectUserByEmailOrLogin(emailOrLogin string) (*api_models.UserData, error) {
 	row := r.dbConn.QueryRow(
 		"SELECT id, first_name, last_name, login, email, password "+
 			"FROM users "+
@@ -49,7 +49,7 @@ func (r *UserRepository) SelectUserByEmailOrLogin(emailOrLogin string) (*models.
 		emailOrLogin,
 	)
 
-	userData := &models.UserData{}
+	userData := &api_models.UserData{}
 
 	firstName := sql.NullString{}
 	lastName := sql.NullString{}
@@ -73,7 +73,7 @@ func (r *UserRepository) SelectUserByEmailOrLogin(emailOrLogin string) (*models.
 	return userData, nil
 }
 
-func (r *UserRepository) SelectUserById(userId uint64) (*models.UserData, error) {
+func (r *UserRepository) SelectUserById(userId uint64) (*api_models.UserData, error) {
 	row := r.dbConn.QueryRow(
 		"SELECT id, first_name, last_name, login, email, password, avatar, background "+
 			"FROM users "+
@@ -81,7 +81,7 @@ func (r *UserRepository) SelectUserById(userId uint64) (*models.UserData, error)
 		userId,
 	)
 
-	userData := &models.UserData{}
+	userData := &api_models.UserData{}
 
 	firstName := sql.NullString{}
 	lastName := sql.NullString{}
@@ -107,7 +107,7 @@ func (r *UserRepository) SelectUserById(userId uint64) (*models.UserData, error)
 	return userData, nil
 }
 
-func (r *UserRepository) SelectUserByAuthId(authId uint64, authService string) (*models.UserData, error) {
+func (r *UserRepository) SelectUserByAuthId(authId uint64, authService string) (*api_models.UserData, error) {
 	row := r.dbConn.QueryRow(
 		"SELECT u.id, u.first_name, u.last_name, u.login, u.email, u.password "+
 			"FROM users u "+
@@ -118,7 +118,7 @@ func (r *UserRepository) SelectUserByAuthId(authId uint64, authService string) (
 		authService,
 	)
 
-	userData := &models.UserData{}
+	userData := &api_models.UserData{}
 
 	firstName := sql.NullString{}
 	lastName := sql.NullString{}
@@ -142,7 +142,7 @@ func (r *UserRepository) SelectUserByAuthId(authId uint64, authService string) (
 	return userData, nil
 }
 
-func (r *UserRepository) InsertAuthUser(user *models.AuthUserData) (uint64, error) {
+func (r *UserRepository) InsertAuthUser(user *api_models.AuthUserData) (uint64, error) {
 	var serviceId uint64
 	err := r.dbConn.Get(
 		&serviceId,

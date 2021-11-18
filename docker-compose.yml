@@ -40,7 +40,7 @@ services:
       - ./configs/app/credentials.json:/credentials.json
       - ./configs/app/token.json:/token.json
     ports:
-      - "80:80"
+      - "8080:8080"
     networks:
       - app-network
 networks:

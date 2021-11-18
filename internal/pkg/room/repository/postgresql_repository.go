@@ -1,19 +1,18 @@
 package repository
 
 import (
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/api_models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/room"
 	"github.com/aridae/web-dreamit-api-based-labs/internal/server/errors"
 	"github.com/jmoiron/sqlx"
-	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
-	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/room"
-	"time"
 )
 
 type PostgresqlRepository struct {
 	db *sqlx.DB
 }
 
-func (p PostgresqlRepository) DeleteRoomBooking(userId uint64, eventId int64) error {
-	row := p.db.QueryRow("DELETE FROM calendar " +
+func (p PostgresqlRepository) DeleteRoomEvent(userId uint64, eventId int64) error {
+	row := p.db.QueryRow("DELETE FROM calendar "+
 		"WHERE author = $1 AND id = $2", userId, eventId)
 	if err := row.Err(); err != nil {
 		return err
@@ -21,35 +20,35 @@ func (p PostgresqlRepository) DeleteRoomBooking(userId uint64, eventId int64) er
 	return nil
 }
 
-func (p PostgresqlRepository) MyRoomBooking(userId uint64) ([]models.Booking, error) {
-	rows, err := p.db.Query("SELECT id, roomId, title, start, \"end\" " +
+func (p PostgresqlRepository) GetRoomEventsByUserId(userId uint64) ([]api_models.Event, error) {
+	rows, err := p.db.Query("SELECT id, roomId, title, start, \"end\" "+
 		"FROM calendar WHERE author = $1", userId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	booking := models.Booking{}
-	result := make([]models.Booking, 0)
+	event := api_models.Event{}
+	result := make([]api_models.Event, 0)
 	for rows.Next() {
 		if err := rows.Scan(
-			&booking.Booking.Id,
-			&booking.RoomId,
-			&booking.Booking.Title,
-			&booking.Booking.Start,
-			&booking.Booking.End,
+			&event.Id,
+			&event.RoomId,
+			&event.Title,
+			&event.Start,
+			&event.End,
 		); err != nil {
 			return nil, err
 		}
-		result = append(result, booking)
+		result = append(result, event)
 	}
 	return result, nil
 }
 
-func (p PostgresqlRepository) AddRoomBooking(roomId int64, event models.Event) (int64, error) {
-	check := p.db.QueryRow("SELECT COUNT(*) FROM calendar " +
+func (p PostgresqlRepository) AddRoomEvent(event api_models.Event) (int64, error) {
+	check := p.db.QueryRow("SELECT COUNT(*) FROM calendar "+
 		"WHERE roomId = $1 AND (start < $2 AND $2 < \"end\" OR \"end\" < $3 AND $3 < start )",
-		roomId, event.Start, event.End)
+		event.RoomId, event.Start, event.End)
 	var count int64
 	if err := check.Err(); err != nil {
 		return 0, err
@@ -61,8 +60,8 @@ func (p PostgresqlRepository) AddRoomBooking(roomId int64, event models.Event) (
 		return 0, errors.ErrBadTime
 	}
 
-	row := p.db.QueryRow("INSERT INTO calendar(roomId, title, start, \"end\", author) " +
-		"VALUES ($1, $2, $3, $4, $5) RETURNING id", roomId, event.Title, event.Start, event.End, event.Author)
+	row := p.db.QueryRow("INSERT INTO calendar(roomId, title, start, \"end\", author) "+
+		"VALUES ($1, $2, $3, $4, $5) RETURNING id", event.RoomId, event.Title, event.Start, event.End, event.Author)
 	if err := row.Err(); err != nil {
 		return 0, err
 	}
@@ -74,7 +73,7 @@ func (p PostgresqlRepository) AddRoomBooking(roomId int64, event models.Event) (
 	return id, nil
 }
 
-func (p PostgresqlRepository) GetAllRooms() ([]models.Room, error) {
+func (p PostgresqlRepository) GetAllRooms() ([]api_models.Room, error) {
 	rows, err := p.db.Query("SELECT id, title " +
 		"FROM rooms ")
 	if err != nil {
@@ -82,9 +81,9 @@ func (p PostgresqlRepository) GetAllRooms() ([]models.Room, error) {
 	}
 	defer rows.Close()
 
-	rooms := make([]models.Room, 0)
+	rooms := make([]api_models.Room, 0)
 
-	var roomInfo models.Room
+	var roomInfo api_models.Room
 	for rows.Next() {
 		if err := rows.Scan(
 			&roomInfo.Id,
@@ -97,8 +96,8 @@ func (p PostgresqlRepository) GetAllRooms() ([]models.Room, error) {
 	return rooms, nil
 }
 
-func (p PostgresqlRepository) GetRoomCalendarById(roomId int64) ([]models.Event, error) {
-	rows, err := p.db.Query("SELECT id, title, start, \"end\" "+
+func (p PostgresqlRepository) GetRoomEventsByRoomId(roomId int64) ([]api_models.Event, error) {
+	rows, err := p.db.Query("SELECT id, roomId, title, start, \"end\" "+
 		"FROM calendar "+
 		"WHERE roomId = $1", roomId)
 	if err != nil {
@@ -106,11 +105,12 @@ func (p PostgresqlRepository) GetRoomCalendarById(roomId int64) ([]models.Event,
 	}
 	defer rows.Close()
 
-	var event models.Event
-	calendar := make([]models.Event, 0)
+	var event api_models.Event
+	calendar := make([]api_models.Event, 0)
 	for rows.Next() {
 		if err := rows.Scan(
 			&event.Id,
+			&event.RoomId,
 			&event.Title,
 			&event.Start,
 			&event.End,
@@ -123,12 +123,8 @@ func (p PostgresqlRepository) GetRoomCalendarById(roomId int64) ([]models.Event,
 	return calendar, nil
 }
 
-func (p PostgresqlRepository) GetRoomScheduleByIdAndDate(roomId int64, date time.Time) (*models.Schedule, error) {
-	panic("implement me")
-}
-
-func (p PostgresqlRepository) UpdateRoomBookingById(roomId int64, event models.Event) error {
-	check := p.db.QueryRow("SELECT COUNT(*) FROM calendar " +
+func (p PostgresqlRepository) UpdateRoomEventsByRoomId(roomId int64, event api_models.Event) error {
+	check := p.db.QueryRow("SELECT COUNT(*) FROM calendar "+
 		"WHERE roomId = $1 AND (start < $2 AND $2 < \"end\" OR \"end\" < $3 AND $3 < start )",
 		roomId, event.Start, event.End)
 	var count int64
@@ -142,8 +138,8 @@ func (p PostgresqlRepository) UpdateRoomBookingById(roomId int64, event models.E
 		return errors.ErrBadTime
 	}
 
-	row := p.db.QueryRow("UPDATE calendar " +
-		"SET start = $1, \"end\" = $2 " +
+	row := p.db.QueryRow("UPDATE calendar "+
+		"SET start = $1, \"end\" = $2 "+
 		"WHERE roomId = $3 ", event.Start, event.End, roomId)
 	if err := row.Err(); err != nil {
 		return err

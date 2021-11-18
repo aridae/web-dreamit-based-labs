@@ -1,107 +1,148 @@
 package main
 
 import (
-	"fmt"
-	"github.com/go-redis/redis"
-	"github.com/jmoiron/sqlx"
-	"github.com/aridae/web-dreamit-api-based-labs/internal/server/middleware"
-	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/configer"
+	"context"
 	"log"
 	"net/http"
 	"time"
 
-	room_delivery "github.com/aridae/web-dreamit-api-based-labs/internal/pkg/room/handler"
-	room_repo "github.com/aridae/web-dreamit-api-based-labs/internal/pkg/room/repository"
-	room_usecase "github.com/aridae/web-dreamit-api-based-labs/internal/pkg/room/usecase"
-	session_delivery "github.com/aridae/web-dreamit-api-based-labs/internal/pkg/session/handler"
-	session_repo "github.com/aridae/web-dreamit-api-based-labs/internal/pkg/session/repository"
-	session_usecase "github.com/aridae/web-dreamit-api-based-labs/internal/pkg/session/usecase"
-	user_delivery "github.com/aridae/web-dreamit-api-based-labs/internal/pkg/user/handler"
-	user_repo "github.com/aridae/web-dreamit-api-based-labs/internal/pkg/user/repository"
-	user_usecase "github.com/aridae/web-dreamit-api-based-labs/internal/pkg/user/usecase"
+	eventrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/event_repo"
+	inviterepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/invite_repo"
+	notifyrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/notify_repo"
+	roomrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/room_repo"
+	sessionrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/session_repo"
+	userrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/user_repo"
+
+	"github.com/aridae/web-dreamit-api-based-labs/internal/database"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/server/middleware"
+	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/configer"
+
+	apiserver "github.com/aridae/web-dreamit-api-based-labs/internal/api_server/api_handlers"
+	middlewarev2 "github.com/aridae/web-dreamit-api-based-labs/internal/api_server/middleware"
+
+	eventcont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/event_controller"
+	invitecont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/invite_controller"
+	notifycont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/notify_controller"
+	roomcont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/room_controller"
+	sessioncont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/session_controller"
+	usercont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/user_controller"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+
+	_ "github.com/aridae/web-dreamit-api-based-labs/docs"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+// @title Dreamit Swagger API
+// @version 2.0
+// @description Swagger API for Dreamit-based web labs
+// @termsOfService http://swagger.io/terms/
+
+// @BasePath /api/v2
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	configer.Init("configs/app/api_server.yaml")
 
-	postgreSqlConn, err := sqlx.Open(
-		"postgres",
-		fmt.Sprintf(
-			"user=%s password=%s dbname=%s host=%s port=%s sslmode=%s",
-			configer.AppConfig.Postgresql.User,
-			configer.AppConfig.Postgresql.Password,
-			configer.AppConfig.Postgresql.DBName,
-			configer.AppConfig.Postgresql.Host,
-			configer.AppConfig.Postgresql.Port,
-			configer.AppConfig.Postgresql.Sslmode,
-		),
-	)
+	// СТАРАЯ ВЕРСИЯ АПИ БУДЕТ МАРШУТИЗИРОВАНА НА /ЛЕГАСИ НГИНХОМ??
+	// если я правильно понимаю, мы документируем только v2 в мейне,
+	// тк тут указывается basepath /api/v2 и version 2.0
+	// **********************************************************
+	//registerAPIv1(mainMux, roomHandler, userHandler, sessionHandler)
+
+	postgresClient, err := database.NewPostgresClient(context.Background(), &database.Options{
+		Host:     configer.AppConfig.Postgresql.Host,
+		Port:     configer.AppConfig.Postgresql.Port,
+		User:     configer.AppConfig.Postgresql.User,
+		Password: configer.AppConfig.Postgresql.Password,
+		DB:       configer.AppConfig.Postgresql.DBName,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer postgreSqlConn.Close()
-	if err := postgreSqlConn.Ping(); err != nil {
-		log.Fatal(err)
-	}
+	defer postgresClient.ClosePostgresClient()
 
-	// Connect to redis db #0
-	redisConnDB0 := redis.NewClient(&redis.Options{
+	redisClient0 := database.NewRedisClient(&database.RedisOptions{
 		Addr:     configer.AppConfig.Redis.Addr,
 		Password: configer.AppConfig.Redis.Password,
 		DB:       0,
 	})
-	if redisConnDB0 == nil {
+	if redisClient0 == nil {
 		log.Fatal(err)
 	}
-	defer redisConnDB0.Close()
+	defer redisClient0.CloseRedisClient()
 
-	// Connect to redis db #1
-	redisConnDB1 := redis.NewClient(&redis.Options{
+	redisClient1 := database.NewRedisClient(&database.RedisOptions{
 		Addr:     configer.AppConfig.Redis.Addr,
 		Password: configer.AppConfig.Redis.Password,
-		DB:       1,
+		DB:       0,
 	})
-	if redisConnDB1 == nil {
+	if redisClient1 == nil {
 		log.Fatal(err)
 	}
-	defer redisConnDB1.Close()
+	defer redisClient1.CloseRedisClient()
 
+	sessionRepo := sessionrepo.NewSessionRedisRepository(redisClient0, redisClient1)
+	eventRepo := eventrepo.NewSessionPostgresqlRepository(postgresClient)
+	userRepo := userrepo.NewSessionPostgresqlRepository(postgresClient)
+	roomRepo := roomrepo.NewSessionPostgresqlRepository(postgresClient)
+	inviteRepo := inviterepo.NewSessionPostgresqlRepository(postgresClient)
+	notifyRepo := notifyrepo.NewSessionPostgresqlRepository(postgresClient)
 
+	sessionController := sessioncont.NewSessionController(sessionRepo)
+	eventController := eventcont.NewEventController(eventRepo)
+	userController := usercont.NewUserController(userRepo)
+	roomController := roomcont.NewRoomController(roomRepo)
+	inviteController := invitecont.NewInviteController(inviteRepo)
+	notifyController := notifycont.NewNotifyController(notifyRepo)
 
-	sessionRepo := session_repo.NewSessionRedisRepository(redisConnDB0, redisConnDB1)
-	sessionUCase := session_usecase.NewUseCase(sessionRepo)
-	sessionHandler := session_delivery.NewHandler(sessionUCase)
-
-	roomRepo := room_repo.NewSessionPostgresqlRepository(postgreSqlConn)
-	roomUCase := room_usecase.NewUseCase(roomRepo)
-	roomHandler := room_delivery.NewHandler(roomUCase, sessionUCase)
-
-	userRepo := user_repo.NewRepository(postgreSqlConn)
-	userUCase := user_usecase.NewUseCase(userRepo)
-	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
+	notifyHandler := apiserver.NewNotifyHandler(notifyController, sessionController)
+	inviteHandler := apiserver.NewInviteHandler(inviteController, sessionController)
+	roomHandler := apiserver.NewRoomHandler(roomController, sessionController)
+	userHandler := apiserver.NewUserHandler(userController, sessionController)
+	eventHandler := apiserver.NewEventHandler(eventController, sessionController)
+	jwtHandler := &middlewarev2.JWTHandler{
+		SessionController: sessionController,
+	}
 
 	mainMux := mux.NewRouter()
 	mainMux.Use(middleware.Cors)
-	mainMux.HandleFunc("/api/v1/room", roomHandler.GetAllRooms).Methods("GET")
-	mainMux.HandleFunc("/api/v1/room/my", roomHandler.MyRoomBooking).Methods("GET")
-	mainMux.HandleFunc("/api/v1/room/{id:[0-9]+}", roomHandler.GetRoomCalendar).Methods("GET")
-	mainMux.HandleFunc("/api/v1/room/{id:[0-9]+}", roomHandler.AddRoomBooking).Methods("POST")
-	mainMux.HandleFunc("/api/v1/room/{bookingId}", roomHandler.DeleteRoomBooking).Methods("DELETE")
-	mainMux.HandleFunc("/api/v1/room/{id:[0-9]+}/{date}", roomHandler.GetRoomSchedule).Methods("GET")
-	mainMux.HandleFunc("/api/v1/room/{id:[0-9]+}/{date}", roomHandler.UpdateRoomBooking).Methods("POST")
+	mainMux.Use(jwtHandler.JWTAuth)
 
-	mainMux.HandleFunc("/api/v1/user/signup", userHandler.SignUp).Methods("POST")
-	mainMux.HandleFunc("/api/v1/user/login", userHandler.LogIn).Methods("POST")
-	mainMux.HandleFunc("/api/v1/user/oauth/keycloak", userHandler.LogInKeycloak).Methods("GET")
+	// сваггером нужно аннотировать все ендпоинты:
+	mainMux.HandleFunc("/api/v2/rooms", roomHandler.GetAllRooms).Methods("GET")
+	mainMux.HandleFunc("/api/v2/rooms/{id:[0-9]+}", roomHandler.GetRoom).Methods("GET")
 
-	mainMux.HandleFunc("/api/v1/session/refresh", sessionHandler.RefreshSession).Methods("GET")
-	mainMux.HandleFunc("/api/v1/session/check", sessionHandler.CheckSession).Methods("GET")
+	mainMux.HandleFunc("/api/v2/events", eventHandler.GetEventsCollection).Methods("GET")
+	mainMux.HandleFunc("/api/v2/events", eventHandler.PostEvent).Methods("POST")
+	mainMux.HandleFunc("/api/v2/events/{id:[0-9]+}", eventHandler.DeleteEvent).Methods("DELETE")
+	mainMux.HandleFunc("/api/v2/events/{id:[0-9]+}", eventHandler.PatchEvent).Methods("PATCH")
+	mainMux.HandleFunc("/api/v2/events/{id:[0-9]+}", eventHandler.GetEvent).Methods("GET")
+
+	mainMux.HandleFunc("/api/v2/invites", inviteHandler.GetInvites).Methods("GET")
+	mainMux.HandleFunc("/api/v2/invites", inviteHandler.AddInvite).Methods("POST")
+	mainMux.HandleFunc("/api/v2/invites/{id:[0-9]+}", inviteHandler.DeleteInvite).Methods("DELETE")
+	mainMux.HandleFunc("/api/v2/invites/{id:[0-9]+}", inviteHandler.GetInvite).Methods("GET")
+
+	mainMux.HandleFunc("/api/v2/notifies", notifyHandler.GetNotifies).Methods("GET")
+	mainMux.HandleFunc("/api/v2/notifies", notifyHandler.AddNotify).Methods("POST")
+	mainMux.HandleFunc("/api/v2/notifies/{id:[0-9]+}", notifyHandler.DeleteNotify).Methods("DELETE")
+	mainMux.HandleFunc("/api/v2/notifies/{id:[0-9]+}", notifyHandler.GetNotify).Methods("GET")
+
+	mainMux.HandleFunc("/api/v2/users", userHandler.GetUsers).Methods("GET")
+	mainMux.HandleFunc("/api/v2/users/{id:[0-9]+}", userHandler.GetUser).Methods("GET")
+
+	mainMux.HandleFunc("/api/v2/users/signup", userHandler.SignUp).Methods("POST")
+	mainMux.HandleFunc("/api/v2/users/login", userHandler.LogIn).Methods("POST")
+	mainMux.HandleFunc("/api/v2/users/logout", userHandler.Logout).Methods("POST")
+
+	// враппер генерит index.html
+	mainMux.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 
 	server := &http.Server{
-		Addr:         ":80",
+		Addr:         ":8080",
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
@@ -112,3 +153,19 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
+// func registerAPIv1(mainMux *mux.Router, roomHandler room.Handler, userHandler user.Handler, sessionHandler session.Handler) {
+// 	mainMux.HandleFunc("/api/v1/room", roomHandler.GetAllRooms).Methods("GET")
+// 	mainMux.HandleFunc("/api/v1/room/my", roomHandler.MyRoomEvents).Methods("GET")
+// 	mainMux.HandleFunc("/api/v1/room/{id:[0-9]+}", roomHandler.GetRoomEvents).Methods("GET")
+// 	mainMux.HandleFunc("/api/v1/room/{id:[0-9]+}", roomHandler.AddRoomEvent).Methods("POST")
+// 	mainMux.HandleFunc("/api/v1/room/{bookingId}", roomHandler.DeleteRoomEvent).Methods("DELETE")
+// 	mainMux.HandleFunc("/api/v1/room/{id:[0-9]+}/{date}", roomHandler.UpdateRoomEvent).Methods("POST")
+
+// 	mainMux.HandleFunc("/api/v1/user/signup", userHandler.SignUp).Methods("POST")
+// 	mainMux.HandleFunc("/api/v1/user/login", userHandler.LogIn).Methods("POST")
+// 	mainMux.HandleFunc("/api/v1/user/oauth/keycloak", userHandler.LogInKeycloak).Methods("GET")
+
+// 	mainMux.HandleFunc("/api/v1/session/refresh", sessionHandler.RefreshSession).Methods("GET")
+// 	mainMux.HandleFunc("/api/v1/session/check", sessionHandler.CheckSession).Methods("GET")
+// }

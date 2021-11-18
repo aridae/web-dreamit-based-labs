@@ -4,20 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/calendar/v3"
-	"google.golang.org/api/option"
 	"io/ioutil"
-	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
-	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/room"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"time"
-)
 
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/api_models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/room"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/calendar/v3"
+	"google.golang.org/api/option"
+)
 
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
@@ -74,20 +73,19 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
-
 type RoomUseCase struct {
 	RoomRepo room.Repository
 }
 
-func (r RoomUseCase) DeleteRoomBooking(userId uint64, eventId int64) error {
-	return r.RoomRepo.DeleteRoomBooking(userId, eventId)
+func (r RoomUseCase) DeleteRoomEvent(userId uint64, eventId int64) error {
+	return r.RoomRepo.DeleteRoomEvent(userId, eventId)
 }
 
-func (r RoomUseCase) MyRoomBooking(userId uint64) ([]models.Booking, error) {
-	return r.RoomRepo.MyRoomBooking(userId)
+func (r RoomUseCase) MyRoomEvents(userId uint64) ([]api_models.Event, error) {
+	return r.RoomRepo.GetRoomEventsByUserId(userId)
 }
 
-func (r RoomUseCase) AddRoomBooking(roomId int64, event models.Event) (int64, error) {
+func (r RoomUseCase) AddRoomEvent(event api_models.Event) (int64, error) {
 	files, err := ioutil.ReadDir(".")
 	if err != nil {
 		log.Fatal(err)
@@ -96,7 +94,7 @@ func (r RoomUseCase) AddRoomBooking(roomId int64, event models.Event) (int64, er
 		fmt.Println(f.Name())
 	}
 
-	result, err := r.RoomRepo.AddRoomBooking(roomId, event)
+	result, err := r.RoomRepo.AddRoomEvent(event)
 	if err != nil {
 		return result, err
 	}
@@ -143,20 +141,16 @@ func (r RoomUseCase) AddRoomBooking(roomId int64, event models.Event) (int64, er
 	return result, nil
 }
 
-func (r RoomUseCase) GetAllRooms() ([]models.Room, error) {
+func (r RoomUseCase) GetAllRooms() ([]api_models.Room, error) {
 	return r.RoomRepo.GetAllRooms()
 }
 
-func (r RoomUseCase) GetRoomCalendar(roomId int64) ([]models.Event, error) {
-	return r.RoomRepo.GetRoomCalendarById(roomId)
+func (r RoomUseCase) GetRoomEvents(roomId int64) ([]api_models.Event, error) {
+	return r.RoomRepo.GetRoomEventsByRoomId(roomId)
 }
 
-func (r RoomUseCase) GetRoomSchedule(roomId int64, date time.Time) (*models.Schedule, error) {
-	panic("implement me")
-}
-
-func (r RoomUseCase) UpdateRoomBooking(roomId int64, event models.Event) error {
-	return r.RoomRepo.UpdateRoomBookingById(roomId, event)
+func (r RoomUseCase) UpdateRoomEvent(roomId int64, event api_models.Event) error {
+	return r.RoomRepo.UpdateRoomEventsByRoomId(roomId, event)
 }
 
 func NewUseCase(roomRepo room.Repository) room.UseCase {

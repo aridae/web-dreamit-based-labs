@@ -4,17 +4,19 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"gopkg.in/square/go-jose.v2/jwt"
 	"io/ioutil"
-	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/configer"
 	"net/http"
 	net_rul "net/url"
 
+	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/configer"
+	"gopkg.in/square/go-jose.v2/jwt"
+
 	"fmt"
 
-	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
 	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/user"
+
 	//"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/configer"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/api_models"
 	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/hasher"
 
 	oidc "github.com/coreos/go-oidc"
@@ -39,13 +41,13 @@ func StringToUid(str string) uint64 {
 	return sum
 }
 
-func (u *UserUseCase) SignUp(signupUser *models.SignupUserRequest) (uint64, error) {
+func (u *UserUseCase) SignUp(signupUser *api_models.SignupUserRequest) (uint64, error) {
 	hashOfPassword, err := hasher.GenerateHashFromPassword(signupUser.Password)
 	if err != nil {
 		return 0, err
 	}
 
-	userId, err := u.userRepo.InsertUser(&models.UserData{
+	userId, err := u.userRepo.InsertUser(&api_models.UserData{
 		Email:    signupUser.Email,
 		Login:    signupUser.Login,
 		Password: hashOfPassword,
@@ -57,11 +59,11 @@ func (u *UserUseCase) SignUp(signupUser *models.SignupUserRequest) (uint64, erro
 	return userId, nil
 }
 
-func (u *UserUseCase) LogIn(loginUser *models.LoginUserRequest) (uint64, error) {
+func (u *UserUseCase) LogIn(loginUser *api_models.LoginUserRequest) (uint64, error) {
 	fmt.Println(loginUser)
 	url := "http://keycloak:8080/auth/realms/demo/protocol/openid-connect/token?"
 	params := net_rul.Values{}
-	params.Add("client_id",  configer.AppConfig.OAuth2App.Keycloak.ClientID)
+	params.Add("client_id", configer.AppConfig.OAuth2App.Keycloak.ClientID)
 	params.Add("grant_type", "password")
 	params.Add("client_secret", configer.AppConfig.OAuth2App.Keycloak.ClientSecret)
 	params.Add("scope", "openid")
@@ -71,7 +73,7 @@ func (u *UserUseCase) LogIn(loginUser *models.LoginUserRequest) (uint64, error) 
 	jsonStr := []byte("")
 	fmt.Println(jsonStr)
 	fmt.Println(bytes.NewBuffer(jsonStr))
-	fmt.Println( url+params.Encode())
+	fmt.Println(url + params.Encode())
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(params.Encode())))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -106,7 +108,7 @@ func (u *UserUseCase) LogIn(loginUser *models.LoginUserRequest) (uint64, error) 
 		return 0, err
 	}
 
-	userId, err := u.userRepo.InsertAuthUser(&models.AuthUserData{
+	userId, err := u.userRepo.InsertAuthUser(&api_models.AuthUserData{
 		FirstName:    newLogin,
 		LastName:     newLogin,
 		AccessToken:  token.AccessToken,
@@ -164,7 +166,7 @@ func (u *UserUseCase) LogInKeycloak(code string) (uint64, error) {
 		return 0, err
 	}
 
-	userId, err := u.userRepo.InsertAuthUser(&models.AuthUserData{
+	userId, err := u.userRepo.InsertAuthUser(&api_models.AuthUserData{
 		FirstName:    newLogin,
 		LastName:     newLogin,
 		AccessToken:  token.AccessToken,
@@ -180,7 +182,7 @@ func (u *UserUseCase) LogInKeycloak(code string) (uint64, error) {
 	return userId, nil
 }
 
-func (u *UserUseCase) GetSelfProfile(userId uint64) (*models.UserData, error) {
+func (u *UserUseCase) GetSelfProfile(userId uint64) (*api_models.UserData, error) {
 	userData, err := u.userRepo.SelectUserById(userId)
 	if err != nil {
 		return nil, err

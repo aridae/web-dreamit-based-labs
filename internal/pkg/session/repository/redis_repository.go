@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/models"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/api_models"
 	"github.com/aridae/web-dreamit-api-based-labs/internal/pkg/session"
 
 	"github.com/go-redis/redis"
@@ -22,14 +22,14 @@ func NewSessionRedisRepository(connAccessDB, connRefreshDB *redis.Client) sessio
 	}
 }
 
-func (r *SessionRepository) InsertToken(userId uint64, token *models.TokenDetails) error {
+func (r *SessionRepository) InsertToken(userId uint64, token *api_models.TokenDetails) error {
 	data := fmt.Sprintf("%d", userId)
-	err := r.connAccessDB.Set(token.AccessDetails.Uuid, data, models.AccessTokenExpires).Err()
+	err := r.connAccessDB.Set(token.AccessDetails.Uuid, data, api_models.AccessTokenExpires).Err()
 	if err != nil {
 		return err
 	}
 
-	err = r.connRefreshDB.Set(token.RefreshDetails.Uuid, data, models.RefreshTokenExpires).Err()
+	err = r.connRefreshDB.Set(token.RefreshDetails.Uuid, data, api_models.RefreshTokenExpires).Err()
 	if err != nil {
 		return err
 	}

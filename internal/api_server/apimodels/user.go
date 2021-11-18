@@ -1,4 +1,4 @@
-package models
+package apimodels
 
 type SignupUserRequest struct {
 	Email    string `json:"email"`
@@ -22,15 +22,6 @@ type UserData struct {
 	Password   []byte `json:"-"`
 }
 
-type VKAuthResponse struct {
-	UserData []VKAuthUserData `json:"response"`
-}
-
-type VKAuthUserData struct {
-	LastName  string `json:"last_name"`
-	FirstName string `json:"first_name"`
-}
-
 type AuthUserData struct {
 	FirstName    string `json:"firstName"`
 	LastName     string `json:"lastName"`
@@ -41,4 +32,8 @@ type AuthUserData struct {
 	Login        string `json:"login"`
 	Password     []byte `json:"-"`
 	AuthId       uint64 `json:"authId"`
+}
+
+type TokenCreatedResponse struct {
+	Token string `json:"token"`
 }
