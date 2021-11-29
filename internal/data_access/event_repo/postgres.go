@@ -42,7 +42,7 @@ func (p PostgresqlRepository) DeleteRoomEvent(eventId int64) error {
 }
 
 func (p PostgresqlRepository) GetEvents() ([]domain.Event, error) {
-	rows, err := p.db.Client.Query("SELECT id, roomId, title, start, \"end\" FROM calendar;")
+	rows, err := p.db.Client.Query("SELECT id, roomId, title, start, \"end\", author FROM calendar;")
 	if err != nil {
 		return nil, err
 	}
@@ -58,6 +58,7 @@ func (p PostgresqlRepository) GetEvents() ([]domain.Event, error) {
 			&eventDB.Title,
 			&eventDB.Start,
 			&eventDB.End,
+			&eventDB.AuthorId,
 		); err != nil {
 			return nil, err
 		}
@@ -74,8 +75,9 @@ func (p PostgresqlRepository) GetEvents() ([]domain.Event, error) {
 }
 
 func (p PostgresqlRepository) GetRoomEventsByUserId(userId uint64) ([]domain.Event, error) {
-	rows, err := p.db.Client.Query("SELECT id, roomId, title, start, \"end\" "+
-		"FROM calendar WHERE author = $1", userId)
+	rows, err := p.db.Client.Query(
+		"SELECT id, roomId, title, start, \"end\" "+
+			"FROM calendar WHERE author = $1", userId)
 	if err != nil {
 		return nil, err
 	}
@@ -94,6 +96,8 @@ func (p PostgresqlRepository) GetRoomEventsByUserId(userId uint64) ([]domain.Eve
 		); err != nil {
 			return nil, err
 		}
+
+		fmt.Printf("Event: %+v\n", eventDB)
 		events = append(events, domain.Event{
 			Id:       eventDB.Id,
 			RoomId:   eventDB.RoomId,
@@ -175,10 +179,22 @@ func (p PostgresqlRepository) GetRoomEventsByRoomId(roomId int64) ([]domain.Even
 }
 
 func (p PostgresqlRepository) RescheduleRoomEvent(eventId int64, event domain.PatchEvent) error {
-	check := p.db.Client.QueryRow("SELECT COUNT(*) FROM calendar "+
+
+	var count int64
+	check := p.db.Client.QueryRow("SELECT COUNT(id) from calendar WHERE id=$1", event.Id)
+	if err := check.Err(); err != nil {
+		return err
+	}
+	if err := check.Scan(&count); err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.ErrEventNotFound
+	}
+
+	check = p.db.Client.QueryRow("SELECT COUNT(*) FROM calendar "+
 		"WHERE roomId = $1 AND (start < $2 AND $2 < \"end\" OR \"end\" < $3 AND $3 < start )",
 		event.RoomId, event.Start, event.End)
-	var count int64
 	if err := check.Err(); err != nil {
 		return err
 	}

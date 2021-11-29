@@ -28,6 +28,8 @@ const (
 // @Tags room
 // @Success 200 {array} apimodels.Room
 // @Failure 500 {object} apimodels.MessageResponse
+// @Security ApiKeyAuth
+// @Param Authorization header string false "token with the bearer started"
 // @Router /rooms [get]
 func (r2 RoomHandler) GetAllRooms(w http.ResponseWriter, r *http.Request) {
 	rooms, err := r2.RoomController.GetAllRooms()
@@ -45,9 +47,10 @@ func (r2 RoomHandler) GetAllRooms(w http.ResponseWriter, r *http.Request) {
 // @Description Get room by id
 // @Tags room
 // @Success 200 {array} apimodels.Room
-// @Success 404 {object} apimodels.MessageResponse
 // @Failure 500 {object} apimodels.MessageResponse
 // @Param id path int true "Room ID"
+// @Security ApiKeyAuth
+// @Param Authorization header string false "token with the bearer started"
 // @Router /rooms/{id} [get]
 func (r2 RoomHandler) GetRoom(w http.ResponseWriter, r *http.Request) {
 

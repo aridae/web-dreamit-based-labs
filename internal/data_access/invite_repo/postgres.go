@@ -50,6 +50,7 @@ func (r *PostgresqlRepository) GetInviteById(inviteId int64) (*domain.Invite, er
 	var invite domain.Invite
 	row.Scan(
 		&invite.Id,
+		&invite.EventId,
 		&invite.ReceiverId,
 		&invite.StatusId,
 	)

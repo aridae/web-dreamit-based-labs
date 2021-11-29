@@ -41,7 +41,7 @@ type CommentHandler struct {
 // @Success 200 {array} apimodels.Comment
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse
-// @Failure 404 {object} apimodels.MessageResponse
+// @Failure 500 {object} apimodels.MessageResponse
 // @Security ApiKeyAuth
 // @Param Authorization header string false "token with the bearer started"
 // @Tags comment
@@ -85,7 +85,7 @@ func (handler CommentHandler) GetNotifyComments(w http.ResponseWriter, r *http.R
 // @Success 200 {object} apimodels.Comment
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse
-// @Failure 404 {object} apimodels.MessageResponse
+// @Failure 500 {object} apimodels.MessageResponse
 // @Param Authorization header string false "token with the bearer started"
 // @Security ApiKeyAuth
 // @Tags comment
@@ -118,7 +118,7 @@ func (handler CommentHandler) GetNotifyComment(w http.ResponseWriter, r *http.Re
 // @Description Create comment and get id
 // @Produce  json
 // @Accept  json
-// @Param id body apimodels.PostComment true "New comment"
+// @Param NewComment body apimodels.PostComment true "New comment"
 // @Success 201 {object} apimodels.SuccessPostComment
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse
@@ -216,4 +216,11 @@ func (handler CommentHandler) DeleteNotifyComment(w http.ResponseWriter, r *http
 		apimodels.MessageResponse{
 			Message: SUCCESS_COMMENT_DELETED,
 		}, http.StatusOK) // 200
+}
+
+func NewCommentHandler(CommentController *commentcont.CommentController, SessionController *sessioncont.SessionController) *CommentHandler {
+	return &CommentHandler{
+		CommentController: CommentController,
+		SessionController: SessionController,
+	}
 }

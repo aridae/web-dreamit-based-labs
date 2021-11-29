@@ -11,6 +11,8 @@ package domain
 // для этого на сервере есть почтовый виртуальный сервер - демон-почтальон
 // это считается внешней сущностью?
 
+//
+
 type Notify struct {
 	Id      int64
 	Tags    []string
@@ -40,3 +42,5 @@ type OptionalNotifyFilter struct {
 	Tags                 []string
 	Subject              string
 }
+
+//

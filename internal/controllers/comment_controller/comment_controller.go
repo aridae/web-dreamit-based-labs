@@ -5,15 +5,6 @@ import (
 	domain "github.com/aridae/web-dreamit-api-based-labs/internal/domain"
 )
 
-type CommentUseCase interface {
-	CreateComment(domain.Comment) (int64, error)
-	DeleteComment(commId int64) error
-	GetComment(commId int64) (*domain.Comment, error)
-	GetNotifyComments(notifyId int64) ([]domain.Comment, error)
-	GetAuthorComments(authorId int64) ([]domain.Comment, error)
-	DeleteNotifyComments(notifyId int64) error
-}
-
 type CommentController struct {
 	CommentRepo commentrepo.Repository
 }

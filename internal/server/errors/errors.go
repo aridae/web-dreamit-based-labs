@@ -15,4 +15,7 @@ var (
 	ErrBadTime error = errors.Error{
 		Message: "bad time",
 	}
+	ErrEventNotFound error = errors.Error{
+		Message: "event not found",
+	}
 )

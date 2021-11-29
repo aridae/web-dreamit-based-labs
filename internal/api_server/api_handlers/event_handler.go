@@ -134,7 +134,7 @@ func (handler EventHandler) getRoomEventsCollection(w http.ResponseWriter, r *ht
 // @Success 200 {object} apimodels.Event
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse
-// @Failure 404 {object} apimodels.MessageResponse
+// @Failure 500 {object} apimodels.MessageResponse
 // @Param Authorization header string false "token with the bearer started"
 // @Security ApiKeyAuth
 // @Tags event
@@ -166,7 +166,7 @@ func (handler EventHandler) GetEvent(w http.ResponseWriter, r *http.Request) {
 // @Description Create event and get id
 // @Produce  json
 // @Accept  json
-// @Param id body apimodels.PostEvent true "New event to add to the system"
+// @Param NewEvent body apimodels.PostEvent true "New event to add to the system"
 // @Success 201 {object} apimodels.SuccessPostEvent
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse

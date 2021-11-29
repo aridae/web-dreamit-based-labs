@@ -1,5 +1,12 @@
 package apimodels
 
+const (
+	PENDING_STATUS  = iota
+	ACCEPTED_STATUS = iota
+	DECLINED_STATUS = iota
+	EXPIRED_STATUS  = iota
+)
+
 type Invite struct {
 	Id         int64  `json:"id"`
 	EventId    int64  `json:"eventId"`

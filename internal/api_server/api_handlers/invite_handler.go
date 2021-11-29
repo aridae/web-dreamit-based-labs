@@ -16,9 +16,11 @@ import (
 )
 
 const (
-	FAILURE_INVITES_BY_RECEIVER     = "failed to get invites for receiver: %s"
-	FAILURE_INVITES_BY_EVENT        = "failed to get invites for event: %s"
-	FAILURE_STATUS_INVITES_BY_EVENT = "failed to filter event invites by status: %s"
+	FAILURE_INVITES_BY_RECEIVER        = "failed to get invites for receiver: %s"
+	FAILURE_INVITES_BY_EVENT           = "failed to get invites for event: %s"
+	FAILURE_STATUS_INVITES_BY_EVENT    = "failed to filter event invites by status: %s"
+	FAILURE_PATCH_EVENT_INVITES_STATUS = "failed to patch event invites status: %s"
+	SUCCESS_PATCH_EVENT_INVITES_STATUS = "successfully patched event invites status"
 
 	FAILURE_DELETE_INVITE = "failed to delete invite: %s"
 	FAILURE_POST_INVITE   = "failed to post invite: %s"
@@ -26,7 +28,8 @@ const (
 	FAILURE_GET_INVITE    = "failed to get invite: %s"
 
 	SUCCESS_INVITE_DELETED = "invite sucessfully deleted"
-	FAILURE_GET_INVITES    = "resource unaccessibel"
+	SUCCESS_INVITE_PATCHED = "invite sucessfully patched"
+	FAILURE_GET_INVITES    = "resource unaccessible"
 	RECEIVER_ID_PARAM      = "receiverId"
 	EVENT_ID_PARAM         = "eventId"
 	STATUS_ID_PARAM        = "status"
@@ -46,7 +49,6 @@ type InviteHandler struct {
 // @Success 200 {array} apimodels.Invite
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse
-// @Failure 404 {object} apimodels.MessageResponse
 // @Failure 500 {object} apimodels.MessageResponse
 // @Security ApiKeyAuth
 // @Param Authorization header string false "token with the bearer started"
@@ -64,7 +66,6 @@ func (handler InviteHandler) GetInvites(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if okEventId && len(eventId) == 1 {
-
 		if okStatusId && len(statusId) == 1 {
 			handler.getStatusInvitesByEvent(w, r)
 			return
@@ -229,7 +230,7 @@ func (handler InviteHandler) GetInvite(w http.ResponseWriter, r *http.Request) {
 // @Description Create invite and get id
 // @Produce  json
 // @Accept  json
-// @Param id body apimodels.PostInvite true "New invite to add to the system"
+// @Param NewInvite body apimodels.PostInvite true "New invite to add to the system"
 // @Success 201 {object} apimodels.SuccessPostInvite
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse
@@ -284,7 +285,7 @@ func (handler InviteHandler) AddInvite(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} apimodels.MessageResponse
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse
-// @Failure 404 {object} apimodels.MessageResponse
+// @Failure 500 {object} apimodels.MessageResponse
 // @Param Authorization header string false "token with the bearer started"
 // @Security ApiKeyAuth
 // @Tags invite
@@ -304,7 +305,7 @@ func (handler InviteHandler) DeleteInvite(w http.ResponseWriter, r *http.Request
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
 				Message: fmt.Sprintf(FAILURE_DELETE_INVITE, err),
-			}, http.StatusConflict) // 409
+			}, http.StatusInternalServerError) // 500
 		return
 	}
 
@@ -312,6 +313,162 @@ func (handler InviteHandler) DeleteInvite(w http.ResponseWriter, r *http.Request
 		apimodels.MessageResponse{
 			Message: SUCCESS_INVITE_DELETED,
 		}, http.StatusOK) // 200
+}
+
+// PatchEventInvitesStatus godoc
+// @Summary Update invites status for the event
+// @Description Set invites status for the event provided by query parameters
+// @Produce  json
+// @Accept  json
+// @Success 200 {object} apimodels.MessageResponse
+// @Failure 400 {object} apimodels.MessageResponse
+// @Failure 401 {object} apimodels.MessageResponse
+// @Failure 500 {object} apimodels.MessageResponse
+// @Param status body apimodels.PatchInvite true "Patch with status to update"
+// @Param eventId query int true "Event ID"
+// @Param Authorization header string false "token with the bearer started"
+// @Security ApiKeyAuth
+// @Tags invite
+// @Router /invites [patch]
+func (handler InviteHandler) PatchEventInvitesStatus(w http.ResponseWriter, r *http.Request) {
+
+	// fetch event ID from query
+	parameters := r.URL.Query()
+	eventIds, eventsIdsOk := parameters[EVENT_ID_PARAM]
+
+	// validate parameters
+	if !eventsIdsOk || len(eventIds) != 1 {
+		http_utils.SetJSONResponse(w,
+			apimodels.MessageResponse{
+				Message: fmt.Sprintf(FAILURE_PATCH_EVENT_INVITES_STATUS,
+					fmt.Errorf("bad query event ID provided")),
+			}, http.StatusBadRequest) // 400
+		return
+	}
+	eventId, err := strconv.Atoi(eventIds[0])
+	if err != nil {
+		http_utils.SetJSONResponse(w,
+			apimodels.MessageResponse{
+				Message: fmt.Sprintf(FAILURE_PATCH_EVENT_INVITES_STATUS,
+					fmt.Errorf("bad query event ID provided")),
+			}, http.StatusBadRequest) // 400
+		return
+	}
+
+	// fetch patch from body
+	invite := apimodels.PatchInvite{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http_utils.SetJSONResponse(w,
+			apimodels.MessageResponse{
+				Message: fmt.Sprintf(FAILURE_PATCH_EVENT_INVITES_STATUS, err),
+			}, http.StatusBadRequest) // 400
+	}
+	defer r.Body.Close()
+
+	err = json.Unmarshal(body, &invite)
+	if err != nil {
+		http_utils.SetJSONResponse(w,
+			apimodels.MessageResponse{
+				Message: fmt.Sprintf(FAILURE_PATCH_EVENT_INVITES_STATUS, err),
+			}, http.StatusBadRequest) // 400
+		return
+	}
+	if invite.StatusId != domain.EXPIRED_STATUS {
+		http_utils.SetJSONResponse(w,
+			apimodels.MessageResponse{
+				Message: fmt.Sprintf(FAILURE_PATCH_EVENT_INVITES_STATUS,
+					fmt.Errorf("action unsupported")),
+			}, http.StatusForbidden) // 403
+		return
+	}
+
+	// route controller method based on parameters privided
+	err = handler.InviteController.ExpireEventInvites(int64(eventId))
+	if err != nil {
+		http_utils.SetJSONResponse(w,
+			apimodels.MessageResponse{
+				Message: fmt.Sprintf(FAILURE_DELETE_INVITE, err),
+			}, http.StatusInternalServerError) // 500
+		return
+	}
+
+	http_utils.SetJSONResponse(w, apimodels.MessageResponse{
+		Message: SUCCESS_PATCH_EVENT_INVITES_STATUS,
+	}, http.StatusOK) // 200
+
+}
+
+// PatchInviteStatus godoc
+// @Summary Update invite status
+// @Description Set invite status by id
+// @Produce  json
+// @Accept  json
+// @Success 200 {object} apimodels.MessageResponse
+// @Failure 400 {object} apimodels.MessageResponse
+// @Failure 401 {object} apimodels.MessageResponse
+// @Failure 500 {object} apimodels.MessageResponse
+// @Param status body apimodels.PatchInvite true "Patch with status to update"
+// @Param id path int true "Invite ID"
+// @Param Authorization header string false "token with the bearer started"
+// @Security ApiKeyAuth
+// @Tags invite
+// @Router /invites/{id} [patch]
+func (handler InviteHandler) PatchInviteStatus(w http.ResponseWriter, r *http.Request) {
+
+	// fetch invite ID from query
+	inviteId, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http_utils.SetJSONResponse(w,
+			apimodels.MessageResponse{
+				Message: fmt.Sprintf(FAILURE_PATCH_INVITE, err),
+			}, http.StatusBadRequest) // 400
+		return
+	}
+
+	// fetch patch from body
+	invite := apimodels.PatchInvite{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http_utils.SetJSONResponse(w,
+			apimodels.MessageResponse{
+				Message: fmt.Sprintf(FAILURE_PATCH_INVITE, err),
+			}, http.StatusBadRequest) // 400
+	}
+	defer r.Body.Close()
+
+	err = json.Unmarshal(body, &invite)
+	if err != nil {
+		http_utils.SetJSONResponse(w,
+			apimodels.MessageResponse{
+				Message: fmt.Sprintf(FAILURE_PATCH_INVITE, err),
+			}, http.StatusBadRequest) // 400
+		return
+	}
+
+	var controllerErr error
+	switch invite.StatusId {
+	case domain.EXPIRED_STATUS:
+		controllerErr = handler.InviteController.ExpireInvite(int64(inviteId))
+	case domain.ACCEPTED_STATUS:
+		controllerErr = handler.InviteController.AcceptInvite(int64(inviteId))
+	case domain.DECLINED_STATUS:
+		controllerErr = handler.InviteController.DeclineInvite(int64(inviteId))
+	default:
+		controllerErr = fmt.Errorf("unsuppurted action")
+	}
+
+	if controllerErr != nil {
+		http_utils.SetJSONResponse(w,
+			apimodels.MessageResponse{
+				Message: fmt.Sprintf(FAILURE_DELETE_INVITE, err),
+			}, http.StatusInternalServerError) // 500
+		return
+	}
+
+	http_utils.SetJSONResponse(w, apimodels.MessageResponse{
+		Message: SUCCESS_INVITE_PATCHED,
+	}, http.StatusOK) // 200
 
 }
 

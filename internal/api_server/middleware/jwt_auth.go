@@ -22,11 +22,14 @@ type JWTHandler struct {
 func (h *JWTHandler) JWTAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		// rooms для примера, команты должны быть доступны всем
+		// возможно у сваггера должен быть тоже отдельный мультиплексор
+		// потому что он вообще не относится к апи как таковому
 		if strings.Contains(r.URL.Path, "swagger") || strings.Contains(r.URL.Path, "login") || strings.Contains(r.URL.Path, "signup") {
 			next.ServeHTTP(w, r)
 			return
 		}
+
+		// список допустимых строк в конфиг
 
 		// проверяем, есть ли в заголовочнике токен и валидный ли он
 		_, err := h.SessionController.ExtractAccessTokenMetadata(r)

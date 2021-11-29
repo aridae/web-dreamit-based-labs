@@ -76,8 +76,8 @@ var doc = `{
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
@@ -104,7 +104,7 @@ var doc = `{
                 "parameters": [
                     {
                         "description": "New comment",
-                        "name": "id",
+                        "name": "NewComment",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -195,8 +195,8 @@ var doc = `{
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
@@ -336,7 +336,7 @@ var doc = `{
                 "parameters": [
                     {
                         "description": "New event to add to the system",
-                        "name": "id",
+                        "name": "NewEvent",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -433,8 +433,8 @@ var doc = `{
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
@@ -614,12 +614,6 @@ var doc = `{
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/apimodels.MessageResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -648,7 +642,7 @@ var doc = `{
                 "parameters": [
                     {
                         "description": "New invite to add to the system",
-                        "name": "id",
+                        "name": "NewInvite",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -667,6 +661,74 @@ var doc = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/apimodels.SuccessPostInvite"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/apimodels.MessageResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/apimodels.MessageResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/apimodels.MessageResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Set invites status for the event provided by query parameters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invite"
+                ],
+                "summary": "Update invites status for the event",
+                "parameters": [
+                    {
+                        "description": "Patch with status to update",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apimodels.PatchInvite"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token with the bearer started",
+                        "name": "Authorization",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apimodels.MessageResponse"
                         }
                     },
                     "400": {
@@ -798,8 +860,76 @@ var doc = `{
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/apimodels.MessageResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Set invite status by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invite"
+                ],
+                "summary": "Update invite status",
+                "parameters": [
+                    {
+                        "description": "Patch with status to update",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apimodels.PatchInvite"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Invite ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token with the bearer started",
+                        "name": "Authorization",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apimodels.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/apimodels.MessageResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/apimodels.MessageResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
@@ -874,8 +1004,8 @@ var doc = `{
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
@@ -902,7 +1032,7 @@ var doc = `{
                 "parameters": [
                     {
                         "description": "New notify to add to the system",
-                        "name": "id",
+                        "name": "NewNotify",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -993,8 +1123,8 @@ var doc = `{
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
@@ -1052,8 +1182,8 @@ var doc = `{
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/apimodels.MessageResponse"
                         }
@@ -1063,11 +1193,24 @@ var doc = `{
         },
         "/rooms": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get all rooms available in the system for booking",
                 "tags": [
                     "room"
                 ],
                 "summary": "Get all rooms",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token with the bearer started",
+                        "name": "Authorization",
+                        "in": "header"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1089,6 +1232,11 @@ var doc = `{
         },
         "/rooms/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get room by id",
                 "tags": [
                     "room"
@@ -1101,6 +1249,12 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token with the bearer started",
+                        "name": "Authorization",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -1111,12 +1265,6 @@ var doc = `{
                             "items": {
                                 "$ref": "#/definitions/apimodels.Room"
                             }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/apimodels.MessageResponse"
                         }
                     },
                     "500": {
@@ -1461,6 +1609,14 @@ var doc = `{
                 },
                 "start": {
                     "type": "string"
+                }
+            }
+        },
+        "apimodels.PatchInvite": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "integer"
                 }
             }
         },

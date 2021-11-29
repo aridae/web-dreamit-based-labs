@@ -7,15 +7,6 @@ import (
 	domain "github.com/aridae/web-dreamit-api-based-labs/internal/domain"
 )
 
-type EventUseCase interface {
-	GetEvents() ([]domain.Event, error)
-	GetRoomEvents(eventId int64) ([]domain.Event, error)
-	RescheduleRoomEvent(eventId int64, event domain.PatchEvent) error
-	AddRoomEvent(event domain.Event) (int64, error)
-	MyRoomEvents(userId uint64) ([]domain.Event, error)
-	DeleteRoomEvent(eventId int64) error
-}
-
 type EventController struct {
 	EventRepo eventrepo.Repository
 }
@@ -39,6 +30,7 @@ func (r EventController) GetRoomEvents(eventId int64) ([]domain.Event, error) {
 }
 
 func (r EventController) GetAuthorEvents(userId uint64) ([]domain.Event, error) {
+	fmt.Printf("In GetAuthor events: %d\n", userId)
 	return r.EventRepo.GetRoomEventsByUserId(userId)
 }
 

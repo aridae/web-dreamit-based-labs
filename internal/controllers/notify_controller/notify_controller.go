@@ -5,18 +5,6 @@ import (
 	"github.com/aridae/web-dreamit-api-based-labs/internal/domain"
 )
 
-type NotifyUseCase interface {
-	GetNotify(notifyId int64) (*domain.Notify, error)
-	CreateNotify(domain.Notify) (int64, error)
-	DeleteNotify(notifyId int64) error
-
-	FilterNotifies(filter domain.OptionalNotifyFilter) ([]domain.Notify, error)
-	GetEventNotifies(eventId int64) ([]domain.Notify, error)
-
-	GetSubjectEventNotifies(eventId int64, subject string) ([]domain.Notify, error)
-	GettagEventNotifies(eventId int64, tag string) ([]domain.Notify, error)
-}
-
 type NotifyController struct {
 	NotifyRepo notifyrepo.Repository
 }

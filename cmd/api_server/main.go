@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	commentrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/comment_repo"
 	eventrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/event_repo"
 	inviterepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/invite_repo"
 	notifyrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/notify_repo"
@@ -20,6 +21,7 @@ import (
 	apiserver "github.com/aridae/web-dreamit-api-based-labs/internal/api_server/api_handlers"
 	middlewarev2 "github.com/aridae/web-dreamit-api-based-labs/internal/api_server/middleware"
 
+	commentcont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/comment_controller"
 	eventcont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/event_controller"
 	invitecont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/invite_controller"
 	notifycont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/notify_controller"
@@ -90,6 +92,7 @@ func main() {
 	roomRepo := roomrepo.NewSessionPostgresqlRepository(postgresClient)
 	inviteRepo := inviterepo.NewSessionPostgresqlRepository(postgresClient)
 	notifyRepo := notifyrepo.NewSessionPostgresqlRepository(postgresClient)
+	commentRepo := commentrepo.NewSessionPostgresqlRepository(postgresClient)
 
 	sessionController := sessioncont.NewSessionController(sessionRepo)
 	eventController := eventcont.NewEventController(eventRepo)
@@ -97,7 +100,9 @@ func main() {
 	roomController := roomcont.NewRoomController(roomRepo)
 	inviteController := invitecont.NewInviteController(inviteRepo)
 	notifyController := notifycont.NewNotifyController(notifyRepo)
+	commentController := commentcont.NewCommentController(commentRepo)
 
+	commentHandler := apiserver.NewCommentHandler(commentController, sessionController)
 	notifyHandler := apiserver.NewNotifyHandler(notifyController, sessionController)
 	inviteHandler := apiserver.NewInviteHandler(inviteController, sessionController)
 	roomHandler := apiserver.NewRoomHandler(roomController, sessionController)
@@ -106,9 +111,13 @@ func main() {
 	jwtHandler := &middlewarev2.JWTHandler{
 		SessionController: sessionController,
 	}
+	accessHandler := &middlewarev2.AccessHandler{
+		SessionController: sessionController,
+	}
 
 	mainMux := mux.NewRouter()
 	mainMux.Use(middleware.Cors)
+	mainMux.Use(accessHandler.CheckAccess)
 	mainMux.Use(jwtHandler.JWTAuth)
 
 	// сваггером нужно аннотировать все ендпоинты:
@@ -123,13 +132,20 @@ func main() {
 
 	mainMux.HandleFunc("/api/v2/invites", inviteHandler.GetInvites).Methods("GET")
 	mainMux.HandleFunc("/api/v2/invites", inviteHandler.AddInvite).Methods("POST")
+	mainMux.HandleFunc("/api/v2/invites", inviteHandler.PatchEventInvitesStatus).Methods("PATCH")
 	mainMux.HandleFunc("/api/v2/invites/{id:[0-9]+}", inviteHandler.DeleteInvite).Methods("DELETE")
 	mainMux.HandleFunc("/api/v2/invites/{id:[0-9]+}", inviteHandler.GetInvite).Methods("GET")
+	mainMux.HandleFunc("/api/v2/invites/{id:[0-9]+}", inviteHandler.PatchInviteStatus).Methods("PATCH")
 
 	mainMux.HandleFunc("/api/v2/notifies", notifyHandler.GetNotifies).Methods("GET")
 	mainMux.HandleFunc("/api/v2/notifies", notifyHandler.AddNotify).Methods("POST")
 	mainMux.HandleFunc("/api/v2/notifies/{id:[0-9]+}", notifyHandler.DeleteNotify).Methods("DELETE")
 	mainMux.HandleFunc("/api/v2/notifies/{id:[0-9]+}", notifyHandler.GetNotify).Methods("GET")
+
+	mainMux.HandleFunc("/api/v2/comments", commentHandler.GetNotifyComments).Methods("GET")
+	mainMux.HandleFunc("/api/v2/comments/{id:[0-9]+}", commentHandler.GetNotifyComment).Methods("GET")
+	mainMux.HandleFunc("/api/v2/comments/{id:[0-9]+}", commentHandler.AddNotifyComment).Methods("POST")
+	mainMux.HandleFunc("/api/v2/comments/{id:[0-9]+}", commentHandler.DeleteNotifyComment).Methods("DELETE")
 
 	mainMux.HandleFunc("/api/v2/users", userHandler.GetUsers).Methods("GET")
 	mainMux.HandleFunc("/api/v2/users/{id:[0-9]+}", userHandler.GetUser).Methods("GET")

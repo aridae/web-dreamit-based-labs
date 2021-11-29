@@ -6,10 +6,6 @@ import (
 	roomrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/room_repo"
 )
 
-type RoomUseCase interface {
-	GetAllRooms() ([]domain.Room, error)
-}
-
 type RoomController struct {
 	RoomRepo roomrepo.Repository
 }

@@ -76,7 +76,7 @@ func (handler NotifyHandler) parseParameters(r *http.Request) (*domain.OptionalN
 // @Success 200 {array} apimodels.Notify
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse
-// @Failure 404 {object} apimodels.MessageResponse
+// @Failure 500 {object} apimodels.MessageResponse
 // @Security ApiKeyAuth
 // @Param Authorization header string false "token with the bearer started"
 // @Tags notify
@@ -111,7 +111,7 @@ func (handler NotifyHandler) GetNotifies(w http.ResponseWriter, r *http.Request)
 // @Success 200 {object} apimodels.Notify
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse
-// @Failure 404 {object} apimodels.MessageResponse
+// @Failure 500 {object} apimodels.MessageResponse
 // @Param Authorization header string false "token with the bearer started"
 // @Security ApiKeyAuth
 // @Tags notify
@@ -143,7 +143,7 @@ func (handler NotifyHandler) GetNotify(w http.ResponseWriter, r *http.Request) {
 // @Description Create notify and get id
 // @Produce  json
 // @Accept  json
-// @Param id body apimodels.PostNotify true "New notify to add to the system"
+// @Param NewNotify body apimodels.PostNotify true "New notify to add to the system"
 // @Success 201 {object} apimodels.SuccessPostNotify
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse
@@ -197,7 +197,7 @@ func (handler NotifyHandler) AddNotify(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} apimodels.MessageResponse
 // @Failure 400 {object} apimodels.MessageResponse
 // @Failure 401 {object} apimodels.MessageResponse
-// @Failure 404 {object} apimodels.MessageResponse
+// @Failure 500 {object} apimodels.MessageResponse
 // @Param Authorization header string false "token with the bearer started"
 // @Security ApiKeyAuth
 // @Tags notify

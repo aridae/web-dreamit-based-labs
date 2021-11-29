@@ -5,18 +5,6 @@ import (
 	domain "github.com/aridae/web-dreamit-api-based-labs/internal/domain"
 )
 
-type InviteUseCase interface {
-	GetEventInvites(eventId int64) ([]domain.Invite, error)
-	GetStatusInvites(eventId int64, statusId int64) ([]domain.Invite, error)
-	ExpireEventInvites(eventId int64) error
-	GetReceiverInvites(recId uint64) ([]domain.Invite, error)
-	GetInvite(inviteId int64) (*domain.Invite, error)
-	CreateInvite(domain.PostInvite) (int64, error)
-	AcceptInvite(inviteId int64) error
-	DeclineInvite(inviteId int64) error
-	ExpireInvite(inviteId int64) error
-}
-
 type InviteController struct {
 	InviteRepo inviterepo.Repository
 }

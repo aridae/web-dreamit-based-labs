@@ -73,6 +73,11 @@ definitions:
       start:
         type: string
     type: object
+  apimodels.PatchInvite:
+    properties:
+      status:
+        type: integer
+    type: object
   apimodels.PostComment:
     properties:
       message:
@@ -191,8 +196,8 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
       security:
@@ -207,7 +212,7 @@ paths:
       parameters:
       - description: New comment
         in: body
-        name: id
+        name: NewComment
         required: true
         schema:
           $ref: '#/definitions/apimodels.PostComment'
@@ -297,8 +302,8 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
       security:
@@ -355,7 +360,7 @@ paths:
       parameters:
       - description: New event to add to the system
         in: body
-        name: id
+        name: NewEvent
         required: true
         schema:
           $ref: '#/definitions/apimodels.PostEvent'
@@ -449,8 +454,8 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
       security:
@@ -535,10 +540,6 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/apimodels.MessageResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -548,6 +549,50 @@ paths:
       summary: Get invites collection
       tags:
       - invite
+    patch:
+      consumes:
+      - application/json
+      description: Set invites status for the event provided by query parameters
+      parameters:
+      - description: Patch with status to update
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/apimodels.PatchInvite'
+      - description: Event ID
+        in: query
+        name: eventId
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update invites status for the event
+      tags:
+      - invite
     post:
       consumes:
       - application/json
@@ -555,7 +600,7 @@ paths:
       parameters:
       - description: New invite to add to the system
         in: body
-        name: id
+        name: NewInvite
         required: true
         schema:
           $ref: '#/definitions/apimodels.PostInvite'
@@ -617,8 +662,8 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
       security:
@@ -662,6 +707,50 @@ paths:
       summary: Get invite
       tags:
       - invite
+    patch:
+      consumes:
+      - application/json
+      description: Set invite status by id
+      parameters:
+      - description: Patch with status to update
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/apimodels.PatchInvite'
+      - description: Invite ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update invite status
+      tags:
+      - invite
   /notifies:
     get:
       description: Get notifies collection filtered by query parameters
@@ -702,8 +791,8 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
       security:
@@ -718,7 +807,7 @@ paths:
       parameters:
       - description: New notify to add to the system
         in: body
-        name: id
+        name: NewNotify
         required: true
         schema:
           $ref: '#/definitions/apimodels.PostNotify'
@@ -780,8 +869,8 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
       security:
@@ -816,8 +905,8 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
       security:
@@ -828,6 +917,11 @@ paths:
   /rooms:
     get:
       description: Get all rooms available in the system for booking
+      parameters:
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
       responses:
         "200":
           description: OK
@@ -839,6 +933,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get all rooms
       tags:
       - room
@@ -851,6 +947,10 @@ paths:
         name: id
         required: true
         type: integer
+      - description: token with the bearer started
+        in: header
+        name: Authorization
+        type: string
       responses:
         "200":
           description: OK
@@ -858,14 +958,12 @@ paths:
             items:
               $ref: '#/definitions/apimodels.Room'
             type: array
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/apimodels.MessageResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/apimodels.MessageResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get room
       tags:
       - room
