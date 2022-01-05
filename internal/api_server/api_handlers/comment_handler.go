@@ -62,7 +62,8 @@ func (handler CommentHandler) GetNotifyComments(w http.ResponseWriter, r *http.R
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_COMMENTS, err),
+				Message: fmt.Sprintf(FAILURE_COMMENTS,
+					fmt.Errorf("invalid query paramete notifyId")),
 			}, http.StatusBadRequest) // 400
 		return
 	}
@@ -70,7 +71,8 @@ func (handler CommentHandler) GetNotifyComments(w http.ResponseWriter, r *http.R
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_COMMENTS, err),
+				Message: fmt.Sprintf(FAILURE_COMMENTS,
+					fmt.Errorf("invalid query paramete notifyId")),
 			}, http.StatusNotFound) // 404
 		return
 	}
@@ -95,7 +97,8 @@ func (handler CommentHandler) GetNotifyComment(w http.ResponseWriter, r *http.Re
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_GET_COMMENT, err),
+				Message: fmt.Sprintf(FAILURE_GET_COMMENT,
+					fmt.Errorf("invalid path variable id")),
 			}, http.StatusBadRequest) // 400
 		return
 	}
@@ -104,7 +107,8 @@ func (handler CommentHandler) GetNotifyComment(w http.ResponseWriter, r *http.Re
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_GET_COMMENT, err),
+				Message: fmt.Sprintf(FAILURE_GET_COMMENT,
+					fmt.Errorf("invalid path variable id")),
 			}, http.StatusNotFound) // 404
 		return
 	}
@@ -147,25 +151,25 @@ func (handler CommentHandler) AddNotifyComment(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	details, err := handler.SessionController.ExtractAccessTokenMetadata(r)
-	if err != nil {
-		http_utils.SetJSONResponse(w,
-			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_POST_EVENT, err),
-			}, http.StatusUnauthorized) // 401
-		return
-	}
-	userId, err := handler.SessionController.GetUserIdByAccessToken(details.Uuid)
-	if err != nil {
-		http_utils.SetJSONResponse(w,
-			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_AUTHOR_EVENTS, err),
-			}, http.StatusInternalServerError) // 500
-		return
-	}
+	// details, err := handler.SessionController.ExtractAccessTokenMetadata(r)
+	// if err != nil {
+	// 	http_utils.SetJSONResponse(w,
+	// 		apimodels.MessageResponse{
+	// 			Message: fmt.Sprintf(FAILURE_POST_EVENT, err),
+	// 		}, http.StatusUnauthorized) // 401
+	// 	return
+	// }
+	// userId, err := handler.SessionController.GetUserIdByAccessToken(details.Uuid)
+	// if err != nil {
+	// 	http_utils.SetJSONResponse(w,
+	// 		apimodels.MessageResponse{
+	// 			Message: fmt.Sprintf(FAILURE_AUTHOR_EVENTS, err),
+	// 		}, http.StatusInternalServerError) // 500
+	// 	return
+	// }
 
 	commentId, err := handler.CommentController.CreateComment(domain.PostComment{
-		AuthorId: userId,
+		AuthorId: 0,
 		NotifyId: comment.NotifyId,
 		Message:  comment.Message,
 	})

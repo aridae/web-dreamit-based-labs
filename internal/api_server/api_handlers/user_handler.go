@@ -110,15 +110,16 @@ func (u *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http_utils.SetJSONResponse(w, apimodels.MessageResponse{
-			Message: "Invalid json provided",
+			Message: "Invalid json provided " + err.Error(),
 		}, http.StatusBadRequest) // 400
 	}
 	defer r.Body.Close()
 
 	err = json.Unmarshal(body, &signupUser)
+	fmt.Printf("%s\n", string(body))
 	if err != nil {
 		http_utils.SetJSONResponse(w, apimodels.MessageResponse{
-			Message: "Invalid json provided",
+			Message: "Invalid json provideddd!" + err.Error(),
 		}, http.StatusBadRequest) // 400
 		return
 	}
@@ -130,7 +131,7 @@ func (u *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		http_utils.SetJSONResponse(w, apimodels.MessageResponse{
-			Message: "Conflicting credetntials",
+			Message: "Conflicting credetntials " + err.Error(),
 		}, http.StatusConflict) // 409
 		return
 	}
@@ -138,12 +139,12 @@ func (u *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	token, err := u.SessionController.CreateNewSession(uint64(userId))
 	if err != nil {
 		http_utils.SetJSONResponse(w, apimodels.MessageResponse{
-			Message: "can't create token",
+			Message: "can't create token " + err.Error(),
 		}, http.StatusInternalServerError) // 500
 		return
 	}
 
-	http_utils.SetJSONResponse(w, token, http.StatusOK)
+	http_utils.SetJSONResponse(w, token, http.StatusCreated)
 }
 
 // LogIn godoc

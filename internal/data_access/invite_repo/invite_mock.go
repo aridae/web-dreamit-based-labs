@@ -12,45 +12,6 @@ import (
 // If this is not the case, regenerate this file with moq.
 var _ Repository = &RepositoryMock{}
 
-// RepositoryMock is a mock implementation of Repository.
-//
-// 	func TestSomethingThatUsesRepository(t *testing.T) {
-//
-// 		// make and configure a mocked Repository
-// 		mockedRepository := &RepositoryMock{
-// 			CreateInviteFunc: func(invite domain.PostInvite) (int64, error) {
-// 				panic("mock out the CreateInvite method")
-// 			},
-// 			DeleteInviteByIdFunc: func(inviteId int64) error {
-// 				panic("mock out the DeleteInviteById method")
-// 			},
-// 			DeleteInvitesByEventIdFunc: func(eventId int64) error {
-// 				panic("mock out the DeleteInvitesByEventId method")
-// 			},
-// 			GetInviteByIdFunc: func(inviteId int64) (*domain.Invite, error) {
-// 				panic("mock out the GetInviteById method")
-// 			},
-// 			GetInvitesByEventIdFunc: func(eventId int64) ([]domain.Invite, error) {
-// 				panic("mock out the GetInvitesByEventId method")
-// 			},
-// 			GetInvitesByReceiverIdFunc: func(recId uint64) ([]domain.Invite, error) {
-// 				panic("mock out the GetInvitesByReceiverId method")
-// 			},
-// 			GetStatusInvitesByEventIdFunc: func(eventId int64, statusId int64) ([]domain.Invite, error) {
-// 				panic("mock out the GetStatusInvitesByEventId method")
-// 			},
-// 			UpdateInviteStatusByIdFunc: func(inviteId int64, status int64) error {
-// 				panic("mock out the UpdateInviteStatusById method")
-// 			},
-// 			UpdateInvitesStatusByEventIdFunc: func(eventId int64, status int64) error {
-// 				panic("mock out the UpdateInvitesStatusByEventId method")
-// 			},
-// 		}
-//
-// 		// use mockedRepository in code that requires Repository
-// 		// and then make assertions.
-//
-// 	}
 type RepositoryMock struct {
 	// CreateInviteFunc mocks the CreateInvite method.
 	CreateInviteFunc func(invite domain.PostInvite) (int64, error)

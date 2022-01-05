@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/configer"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -50,12 +49,12 @@ func getPostgresClient(ctx context.Context, options *Options) (*sqlx.DB, error) 
 		"postgres",
 		fmt.Sprintf(
 			"user=%s password=%s dbname=%s host=%s port=%s sslmode=%s",
-			configer.AppConfig.Postgresql.User,
-			configer.AppConfig.Postgresql.Password,
-			configer.AppConfig.Postgresql.DBName,
-			configer.AppConfig.Postgresql.Host,
-			configer.AppConfig.Postgresql.Port,
-			configer.AppConfig.Postgresql.Sslmode,
+			options.User,
+			options.Password,
+			options.DB,
+			options.Host,
+			options.Port,
+			"disable",
 		),
 	)
 	if err != nil {

@@ -4,6 +4,7 @@
 package eventrepo
 
 import (
+	"github.com/aridae/web-dreamit-api-based-labs/internal/api_server/apimodels"
 	"github.com/aridae/web-dreamit-api-based-labs/internal/domain"
 	"sync"
 )
@@ -12,39 +13,43 @@ import (
 // If this is not the case, regenerate this file with moq.
 var _ Repository = &RepositoryMock{}
 
-// RepositoryMock is a mock implementation of Repository.
-//
-// 	func TestSomethingThatUsesRepository(t *testing.T) {
-//
-// 		// make and configure a mocked Repository
-// 		mockedRepository := &RepositoryMock{
-// 			AddRoomEventFunc: func(event domain.PostEvent) (int64, error) {
-// 				panic("mock out the AddRoomEvent method")
-// 			},
-// 			DeleteRoomEventFunc: func(eventId int64) error {
-// 				panic("mock out the DeleteRoomEvent method")
-// 			},
-// 			GetEventFunc: func(eventId int64) (*domain.Event, error) {
-// 				panic("mock out the GetEvent method")
-// 			},
-// 			GetEventsFunc: func() ([]domain.Event, error) {
-// 				panic("mock out the GetEvents method")
-// 			},
-// 			GetRoomEventsByRoomIdFunc: func(roomId int64) ([]domain.Event, error) {
-// 				panic("mock out the GetRoomEventsByRoomId method")
-// 			},
-// 			GetRoomEventsByUserIdFunc: func(userId uint64) ([]domain.Event, error) {
-// 				panic("mock out the GetRoomEventsByUserId method")
-// 			},
-// 			RescheduleRoomEventFunc: func(eventId int64, event domain.PatchEvent) error {
-// 				panic("mock out the RescheduleRoomEvent method")
-// 			},
-// 		}
-//
-// 		// use mockedRepository in code that requires Repository
-// 		// and then make assertions.
-//
-// 	}
+var (
+	CurrentEventId   int64            = 4
+	MockEvents []domain.Event = []domain.Event{
+		{
+			Id:       0,
+			RoomId: 1,
+			Title: "HELLO",
+			Start: "2022-01-11 12:20",
+			End: "2022-01-11 12:40",
+			AuthorId: 1,
+		},
+		{
+			Id:       1,
+			RoomId: 2,
+			Title: "HELLO",
+			Start: "2022-01-12 12:20",
+			End: "2022-01-12 12:40",
+			AuthorId: 2,
+		},
+		{
+			Id:       2,
+			RoomId: 3,
+			Title: "HELLO",
+			Start: "2022-01-13 12:20",
+			End: "2022-01-13 12:40",
+			AuthorId: 3,
+		},
+	}
+
+	MockPostEvent apimodels.PostEvent = apimodels.PostEvent{
+			RoomId: 4,
+			Title: "HELLO",
+			Start: "2022-01-14 12:20",
+			End: "2022-01-14 12:40",
+	}
+)
+
 type RepositoryMock struct {
 	// AddRoomEventFunc mocks the AddRoomEvent method.
 	AddRoomEventFunc func(event domain.PostEvent) (int64, error)
@@ -112,6 +117,31 @@ type RepositoryMock struct {
 	lockGetRoomEventsByRoomId sync.RWMutex
 	lockGetRoomEventsByUserId sync.RWMutex
 	lockRescheduleRoomEvent   sync.RWMutex
+}
+
+func getEventFunc(eventId int64) (*domain.Event, error) {
+	return &MockEvents[eventId], nil
+}
+
+func getEventsFunc() ([]domain.Event, error) {
+	return MockEvents, nil
+}
+
+func getRoomEventsByRoomIdFunc(roomId int64) ([]domain.Event, error) {
+	return []domain.Event{MockEvents[0]}, nil
+}
+
+func getRoomEventsByUserIdFunc(userId uint64) ([]domain.Event, error) {
+	return []domain.Event{MockEvents[0]}, nil
+}
+
+func NewRepositoryMock() *RepositoryMock {
+	return &RepositoryMock{
+		GetEventFunc: getEventFunc,
+		GetEventsFunc: getEventsFunc,
+		GetRoomEventsByRoomIdFunc: getRoomEventsByRoomIdFunc,
+		GetRoomEventsByUserIdFunc: getRoomEventsByUserIdFunc,
+	}
 }
 
 // AddRoomEvent calls AddRoomEventFunc.

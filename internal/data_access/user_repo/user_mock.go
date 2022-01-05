@@ -12,42 +12,6 @@ import (
 // If this is not the case, regenerate this file with moq.
 var _ Repository = &RepositoryMock{}
 
-// RepositoryMock is a mock implementation of Repository.
-//
-// 	func TestSomethingThatUsesRepository(t *testing.T) {
-//
-// 		// make and configure a mocked Repository
-// 		mockedRepository := &RepositoryMock{
-// 			DeleteSelfProfileFunc: func(userId uint64) error {
-// 				panic("mock out the DeleteSelfProfile method")
-// 			},
-// 			GetUsersFunc: func() ([]domain.UserProfile, error) {
-// 				panic("mock out the GetUsers method")
-// 			},
-// 			InsertAuthUserFunc: func(user *domain.AuthUserData) (uint64, error) {
-// 				panic("mock out the InsertAuthUser method")
-// 			},
-// 			InsertUserFunc: func(user *domain.UserData) (uint64, error) {
-// 				panic("mock out the InsertUser method")
-// 			},
-// 			SelectNewUniqLoginFunc: func(login string) (string, error) {
-// 				panic("mock out the SelectNewUniqLogin method")
-// 			},
-// 			SelectUserByAuthIdFunc: func(authId uint64, authService string) (*domain.UserData, error) {
-// 				panic("mock out the SelectUserByAuthId method")
-// 			},
-// 			SelectUserByEmailOrLoginFunc: func(emailOrLogin string) (*domain.UserData, error) {
-// 				panic("mock out the SelectUserByEmailOrLogin method")
-// 			},
-// 			SelectUserByIdFunc: func(userId uint64) (*domain.UserProfile, error) {
-// 				panic("mock out the SelectUserById method")
-// 			},
-// 		}
-//
-// 		// use mockedRepository in code that requires Repository
-// 		// and then make assertions.
-//
-// 	}
 type RepositoryMock struct {
 	// DeleteSelfProfileFunc mocks the DeleteSelfProfile method.
 	DeleteSelfProfileFunc func(userId uint64) error
@@ -124,6 +88,11 @@ type RepositoryMock struct {
 	lockSelectUserByAuthId       sync.RWMutex
 	lockSelectUserByEmailOrLogin sync.RWMutex
 	lockSelectUserById           sync.RWMutex
+}
+
+func NewRepositoryMock() *RepositoryMock {
+	return &RepositoryMock{
+	}
 }
 
 // DeleteSelfProfile calls DeleteSelfProfileFunc.

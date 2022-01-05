@@ -72,7 +72,7 @@ func (handler EventHandler) getEventsCollection(w http.ResponseWriter, r *http.R
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_EVENTS, err),
+				Message: fmt.Sprintf(FAILURE_EVENTS, "internal error"),
 			}, http.StatusInternalServerError) // 500
 		return
 	}
@@ -85,7 +85,7 @@ func (handler EventHandler) getAuthorEventsCollection(w http.ResponseWriter, r *
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_AUTHOR_EVENTS, err),
+				Message: fmt.Sprintf(FAILURE_AUTHOR_EVENTS, "invalid parameters"),
 			}, http.StatusBadRequest) // 400
 		return
 	}
@@ -95,7 +95,7 @@ func (handler EventHandler) getAuthorEventsCollection(w http.ResponseWriter, r *
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_AUTHOR_EVENTS, err),
+				Message: fmt.Sprintf(FAILURE_AUTHOR_EVENTS, "invalid parameters"),
 			}, http.StatusBadRequest) // 400
 		return
 	}
@@ -108,7 +108,7 @@ func (handler EventHandler) getRoomEventsCollection(w http.ResponseWriter, r *ht
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_ROOM_EVENTS, err),
+				Message: fmt.Sprintf(FAILURE_ROOM_EVENTS, "invalid parameters"),
 			}, http.StatusBadRequest) // 400
 		return
 	}
@@ -118,7 +118,7 @@ func (handler EventHandler) getRoomEventsCollection(w http.ResponseWriter, r *ht
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_ROOM_EVENTS, err),
+				Message: fmt.Sprintf(FAILURE_ROOM_EVENTS, "invalid parameters"),
 			}, http.StatusBadRequest) // 400
 		return
 	}
@@ -144,7 +144,7 @@ func (handler EventHandler) GetEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_GET_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_GET_EVENT, "invalid parameters"),
 			}, http.StatusBadRequest) // 400
 		return
 	}
@@ -153,7 +153,7 @@ func (handler EventHandler) GetEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_GET_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_GET_EVENT, "invalid parameters"),
 			}, http.StatusNotFound) // 404
 		return
 	}
@@ -183,7 +183,7 @@ func (handler EventHandler) PostEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_POST_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_POST_EVENT, "invalid parameters"),
 			}, http.StatusUnauthorized)
 		return
 	}
@@ -191,7 +191,7 @@ func (handler EventHandler) PostEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_AUTHOR_EVENTS, err),
+				Message: fmt.Sprintf(FAILURE_AUTHOR_EVENTS, "invalid parameters"),
 			}, http.StatusInternalServerError) // 500
 		return
 	}
@@ -201,7 +201,7 @@ func (handler EventHandler) PostEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_POST_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_POST_EVENT, "invalid parameters"),
 			}, http.StatusBadRequest) // 400
 	}
 	defer r.Body.Close()
@@ -210,7 +210,7 @@ func (handler EventHandler) PostEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_POST_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_POST_EVENT, "invalid parameters"),
 			}, http.StatusBadRequest) // 400
 		return
 	}
@@ -225,7 +225,7 @@ func (handler EventHandler) PostEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_POST_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_POST_EVENT, "invalid parameters"),
 			}, http.StatusConflict) // 409
 		return
 	}
@@ -251,7 +251,7 @@ func (handler EventHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_DELETE_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_DELETE_EVENT, "invalid parameters"),
 			}, http.StatusBadRequest) // 400
 		return
 	}
@@ -260,7 +260,7 @@ func (handler EventHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_DELETE_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_DELETE_EVENT, "invalid parameters"),
 			}, http.StatusConflict) // 409
 		return
 	}
@@ -292,7 +292,7 @@ func (handler EventHandler) PatchEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_PATCH_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_PATCH_EVENT, "invalid parameters"),
 			}, http.StatusBadRequest)
 		return
 	}
@@ -302,7 +302,7 @@ func (handler EventHandler) PatchEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_PATCH_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_PATCH_EVENT, "invalid parameters"),
 			}, http.StatusBadRequest)
 	}
 	defer r.Body.Close()
@@ -311,7 +311,7 @@ func (handler EventHandler) PatchEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_PATCH_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_PATCH_EVENT, "invalid parameters"),
 			}, http.StatusBadRequest)
 		return
 	}
@@ -325,7 +325,7 @@ func (handler EventHandler) PatchEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_PATCH_EVENT, err),
+				Message: fmt.Sprintf(FAILURE_PATCH_EVENT, "invalid parameters"),
 			}, http.StatusConflict) // 409
 		return
 	}

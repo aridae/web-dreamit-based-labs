@@ -12,24 +12,6 @@ import (
 // If this is not the case, regenerate this file with moq.
 var _ Repository = &RepositoryMock{}
 
-// RepositoryMock is a mock implementation of Repository.
-//
-// 	func TestSomethingThatUsesRepository(t *testing.T) {
-//
-// 		// make and configure a mocked Repository
-// 		mockedRepository := &RepositoryMock{
-// 			GetAllRoomsFunc: func() ([]domain.Room, error) {
-// 				panic("mock out the GetAllRooms method")
-// 			},
-// 			GetRoomFunc: func(roomId int64) (*domain.Room, error) {
-// 				panic("mock out the GetRoom method")
-// 			},
-// 		}
-//
-// 		// use mockedRepository in code that requires Repository
-// 		// and then make assertions.
-//
-// 	}
 type RepositoryMock struct {
 	// GetAllRoomsFunc mocks the GetAllRooms method.
 	GetAllRoomsFunc func() ([]domain.Room, error)
@@ -50,6 +32,11 @@ type RepositoryMock struct {
 	}
 	lockGetAllRooms sync.RWMutex
 	lockGetRoom     sync.RWMutex
+}
+
+func NewRepositoryMock() *RepositoryMock {
+	return &RepositoryMock{
+	}
 }
 
 // GetAllRooms calls GetAllRoomsFunc.

@@ -15,7 +15,7 @@ type KeycloakAppData struct {
 	ClientID     string `mapstructure:"client-id"`
 	ClientSecret string `mapstructure:"client-secret"`
 	RedirectURL  string `mapstructure:"redirect-url"`
-	ConfigURL  string `mapstructure:"config-url"`
+	ConfigURL    string `mapstructure:"config-url"`
 }
 
 type ServerData struct {
@@ -52,7 +52,7 @@ type Config struct {
 
 var AppConfig Config
 
-func Init(configPath string) {
+func Init(configPath string) error {
 	viper.SetConfigFile(configPath)
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal(err)
@@ -63,4 +63,5 @@ func Init(configPath string) {
 	}
 
 	fmt.Println(AppConfig)
+	return nil
 }

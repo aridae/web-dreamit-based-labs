@@ -16,8 +16,11 @@ services:
   redis:
     image: redis
     restart: unless-stopped
-    networks:
-      - app-network
+    ports:
+      - "6379:6379"
+    container_name: "redisdreamit"
+    # networks:
+    #   - app-network
   keycloak:
     image: jboss/keycloak:4.1.0.Final
     restart: unless-stopped

@@ -1,139 +1,162 @@
 package apiserver
 
 import (
+	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 
+	"github.com/aridae/web-dreamit-api-based-labs/internal/api_server/apimodels"
 	commentcont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/comment_controller"
 	sessioncont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/session_controller"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/data_access/comment_repo"
+	sessionrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/session_repo"
+	testinghelp "github.com/aridae/web-dreamit-api-based-labs/internal/utils/testing"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestCommentHandler_GetNotifyComments(t *testing.T) {
-	type fields struct {
-		CommentController *commentcont.CommentController
-		SessionController *sessioncont.SessionController
+var (
+	ROUTE = "/comments"
+)
+
+func setupTest() *CommentHandler {
+	h := &CommentHandler{
+		CommentController: commentcont.NewCommentController(comment_repo.NewRepositoryMock()),
+		SessionController: sessioncont.NewSessionController(&sessionrepo.RepositoryMock{}),
 	}
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
+	return h
+}
+
+func TestCommentHandler_GetNotifyComments(t *testing.T) {
+	type testInput struct {
+		notifyId string
+	}
+	type testWant struct {
+		code int
+		body string
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
+		input testInput
+		want  testWant
 	}{
-		// TODO: Add test cases.
+		{
+			input: testInput{
+				notifyId: "killme",
+			},
+			want: testWant{
+				code: http.StatusBadRequest,
+				body: fmt.Sprintf("{\"message\":\"%s\"}",
+					fmt.Sprintf(FAILURE_COMMENTS, fmt.Errorf("invalid query paramete notifyId"))),
+			},
+		},
+		{
+			input: testInput{
+				notifyId: "2",
+			},
+			want: testWant{
+				code: http.StatusOK,
+				body: fmt.Sprintf(
+					"[{\"Id\":%d,\"NotifyId\":%d,\"AuthorId\":%d,\"Message\":\"%s\"}]",
+					comment_repo.MockComments[1].Id, comment_repo.MockComments[1].NotifyId,
+					comment_repo.MockComments[1].AuthorId, comment_repo.MockComments[1].Message,
+				),
+			},
+		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			handler := CommentHandler{
-				CommentController: tt.fields.CommentController,
-				SessionController: tt.fields.SessionController,
-			}
-			handler.GetNotifyComments(tt.args.w, tt.args.r)
-		})
+	for _, test := range tests {
+		reqBuilder := testinghelp.NewRequestBuilder()
+		r, w := reqBuilder.WithParameter("notifyId", test.input.notifyId).WithMethod(http.MethodGet).WithRoute(ROUTE).Build()
+		h := setupTest()
+		h.GetNotifyComments(w, r)
+		assert.Equal(t, test.want.code, w.Code)
+		assert.Equal(t, test.want.body, w.Body.String())
 	}
 }
 
 func TestCommentHandler_GetNotifyComment(t *testing.T) {
-	type fields struct {
-		CommentController *commentcont.CommentController
-		SessionController *sessioncont.SessionController
+	type testInput struct {
+		id string
 	}
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
+	type testWant struct {
+		code int
+		body string
 	}
+
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
+		input testInput
+		want  testWant
 	}{
-		// TODO: Add test cases.
+		{
+			input: testInput{
+				id: "",
+			},
+			want: testWant{
+				code: http.StatusBadRequest,
+				body: fmt.Sprintf("{\"message\":\"%s\"}",
+					fmt.Sprintf(FAILURE_GET_COMMENT, fmt.Errorf("invalid path variable id"))),
+			},
+		},
+		{
+			input: testInput{
+				id: "killme",
+			},
+			want: testWant{
+				code: http.StatusBadRequest,
+				body: fmt.Sprintf("{\"message\":\"%s\"}",
+					fmt.Sprintf(FAILURE_GET_COMMENT, fmt.Errorf("invalid path variable id"))),
+			},
+		},
+		{
+			input: testInput{
+				id: "1",
+			},
+			want: testWant{
+				code: http.StatusOK,
+				body: fmt.Sprintf(
+					"{\"Id\":%d,\"NotifyId\":%d,\"AuthorId\":%d,\"Message\":\"%s\"}",
+					comment_repo.MockComments[1].Id, comment_repo.MockComments[1].NotifyId,
+					comment_repo.MockComments[1].AuthorId, comment_repo.MockComments[1].Message,
+				),
+			},
+		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			handler := CommentHandler{
-				CommentController: tt.fields.CommentController,
-				SessionController: tt.fields.SessionController,
-			}
-			handler.GetNotifyComment(tt.args.w, tt.args.r)
-		})
+	for _, test := range tests {
+		reqBuilder := testinghelp.NewRequestBuilder()
+		r, w := reqBuilder.WithRouteVar("id", test.input.id).WithMethod(http.MethodGet).WithRoute(ROUTE).Build()
+		h := setupTest()
+		h.GetNotifyComment(w, r)
+		assert.Equal(t, test.want.code, w.Code)
+		assert.Equal(t, test.want.body, w.Body.String())
 	}
 }
 
 func TestCommentHandler_AddNotifyComment(t *testing.T) {
-	type fields struct {
-		CommentController *commentcont.CommentController
-		SessionController *sessioncont.SessionController
+	type testInput struct {
+		body apimodels.PostComment
 	}
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			handler := CommentHandler{
-				CommentController: tt.fields.CommentController,
-				SessionController: tt.fields.SessionController,
-			}
-			handler.AddNotifyComment(tt.args.w, tt.args.r)
-		})
-	}
-}
-
-func TestCommentHandler_DeleteNotifyComment(t *testing.T) {
-	type fields struct {
-		CommentController *commentcont.CommentController
-		SessionController *sessioncont.SessionController
-	}
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
+	type testWant struct {
+		code int
+		body string
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
+		input testInput
+		want  testWant
 	}{
-		// TODO: Add test cases.
+		{
+			input: testInput{
+				body: comment_repo.MockPostComment,
+			},
+			want: testWant{
+				code: http.StatusCreated,
+				body: fmt.Sprintf("{\"id\":%d}", comment_repo.CurrCommId),
+			},
+		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			handler := CommentHandler{
-				CommentController: tt.fields.CommentController,
-				SessionController: tt.fields.SessionController,
-			}
-			handler.DeleteNotifyComment(tt.args.w, tt.args.r)
-		})
-	}
-}
-
-func TestNewCommentHandler(t *testing.T) {
-	type args struct {
-		CommentController *commentcont.CommentController
-		SessionController *sessioncont.SessionController
-	}
-	tests := []struct {
-		name string
-		args args
-		want *CommentHandler
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewCommentHandler(tt.args.CommentController, tt.args.SessionController); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewCommentHandler() = %v, want %v", got, tt.want)
-			}
-		})
+	for _, test := range tests {
+		reqBuilder := testinghelp.NewRequestBuilder()
+		r, w := reqBuilder.WithMethod(http.MethodPost).WithRoute(ROUTE).WithBody(test.input.body).Build()
+		h := setupTest()
+		h.AddNotifyComment(w, r)
+		assert.Equal(t, test.want.code, w.Code)
+		assert.Equal(t, test.want.body, w.Body.String())
 	}
 }

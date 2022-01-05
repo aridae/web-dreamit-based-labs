@@ -1,36 +1,14 @@
-.PHONY: build
-build:
-	make api_server
-	make session_service
-	make cart_service
-	make auth_service
+.PHONY: run_local
+run_local:
+	sudo docker-compose up -d --force-recreate --remove-orphans
 
-.PHONY: api_server
-api_server:
-	go build -o bin/api_server -v ./cmd/api_server
+.PHONY: run_local_tests
+run_local_tests:
+	sudo docker-compose up -d --force-recreate --remove-orphans server_db redis
 
-.PHONY: session_service
-session_service:
-	go build -o bin/session_service -v ./cmd/session_service
-
-.PHONY: session_service
-cart_service:
-	go build -o bin/cart_service -v ./cmd/cart_service
-
-.PHONY: auth_service
-auth_service:
-	go build -o bin/auth_service -v ./cmd/auth_service
-
-.PHONY: start_local
-start_local:
-	echo API_DB_TAG=local > .env
-	echo API_SERVER_TAG=local >> .env
-	echo SESSION_SERVICE_TAG=local >> .env
-	echo AUTH_SERVICE_TAG=local >> .env
-	echo CART_SERVICE_TAG=local >> .env
-	docker volume create --name=grafana-storage
-	python3 python_scripts/scripts.py --target=rebuild --rebuild_targets="${rebuild}"
-	python3 python_scripts/scripts.py --target=up_local
+.PHONY: logs
+logs:
+	docker-compose logs -f
 
 .PHONY: stop_local
 stop_local:
@@ -40,6 +18,10 @@ stop_local:
 remove_containers:
 	-docker stop $$(docker ps -aq)
 	-docker rm $$(docker ps -aq)
+
+.PHONY: integration_test
+integration_test:
+	go test -tags=integration ./integration_tests -count=1 -run=$(INTEGRATION_TEST_SUITE_PATH) 
 
 .PHONY: armageddon
 armageddon:
@@ -60,9 +42,4 @@ cover:
 	cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v models > cover.out
 	go tool cover -func cover.out && go tool cover -html cover.out
 
-.PHONY: init_db
-init_db:
-	sudo -u postgres psql -f scripts/postgresql/init_api_db.sql
-	sudo -u postgres psql -f scripts/postgresql/init_auth_db.sql
-
-.DEFAULT_GOAL := build
+.DEFAULT_GOAL := run_local

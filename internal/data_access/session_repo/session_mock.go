@@ -108,6 +108,11 @@ func (mock *RepositoryMock) DeleteAccessToken(Uuid string) error {
 	return mock.DeleteAccessTokenFunc(Uuid)
 }
 
+func NewRepositoryMock() *RepositoryMock {
+	return &RepositoryMock{
+	}
+}
+
 // DeleteAccessTokenCalls gets all the calls that were made to DeleteAccessToken.
 // Check the length with:
 //     len(mockedRepository.DeleteAccessTokenCalls())
