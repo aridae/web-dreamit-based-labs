@@ -6,11 +6,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/aridae/web-dreamit-api-based-labs/internal/api_server/apimodels"
-	commentcont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/comment_controller"
 	invitecont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/invite_controller"
 	sessioncont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/session_controller"
-	"github.com/aridae/web-dreamit-api-based-labs/internal/data_access/comment_repo"
 	inviterepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/invite_repo"
 	sessionrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/session_repo"
 	testinghelp "github.com/aridae/web-dreamit-api-based-labs/internal/utils/testing"
@@ -21,14 +18,6 @@ var (
 	COMMENT_ROUTE = "/comments"
 	INVITE_ROUTE  = "/invites"
 )
-
-func setupTest() *CommentHandler {
-	h := &CommentHandler{
-		CommentController: commentcont.NewCommentController(comment_repo.NewRepositoryMock()),
-		SessionController: sessioncont.NewSessionController(&sessionrepo.RepositoryMock{}),
-	}
-	return h
-}
 
 func setupInviteTest() *InviteHandler {
 	h := &InviteHandler{
@@ -132,37 +121,37 @@ func TestInviteHandler_GetInvite(t *testing.T) {
 	}
 }
 
-func TestInviteHandler_AddInvite(t *testing.T) {
-	type testInput struct {
-		body apimodels.PostComment
-	}
-	type testWant struct {
-		code int
-		body string
-	}
-	tests := []struct {
-		input testInput
-		want  testWant
-	}{
-		{
-			input: testInput{
-				body: comment_repo.MockPostComment,
-			},
-			want: testWant{
-				code: http.StatusCreated,
-				body: fmt.Sprintf("{\"id\":%d}", comment_repo.CurrCommId),
-			},
-		},
-	}
-	for _, test := range tests {
-		reqBuilder := testinghelp.NewRequestBuilder()
-		r, w := reqBuilder.WithMethod(http.MethodPost).WithRoute(COMMENT_ROUTE).WithBody(test.input.body).Build()
-		h := setupTest()
-		h.AddNotifyComment(w, r)
-		assert.Equal(t, test.want.code, w.Code)
-		assert.Equal(t, test.want.body, w.Body.String())
-	}
-}
+// func TestInviteHandler_AddInvite(t *testing.T) {
+// 	type testInput struct {
+// 		body apimodels.PostComment
+// 	}
+// 	type testWant struct {
+// 		code int
+// 		body string
+// 	}
+// 	tests := []struct {
+// 		input testInput
+// 		want  testWant
+// 	}{
+// 		{
+// 			input: testInput{
+// 				body: comment_repo.MockPostComment,
+// 			},
+// 			want: testWant{
+// 				code: http.StatusCreated,
+// 				body: fmt.Sprintf("{\"id\":%d}", comment_repo.CurrCommId),
+// 			},
+// 		},
+// 	}
+// 	for _, test := range tests {
+// 		reqBuilder := testinghelp.NewRequestBuilder()
+// 		r, w := reqBuilder.WithMethod(http.MethodPost).WithRoute(COMMENT_ROUTE).WithBody(test.input.body).Build()
+// 		h := setupTest()
+// 		h.AddNotifyComment(w, r)
+// 		assert.Equal(t, test.want.code, w.Code)
+// 		assert.Equal(t, test.want.body, w.Body.String())
+// 	}
+// }
 
 func TestInviteHandler_DeleteInvite(t *testing.T) {
 	type fields struct {
