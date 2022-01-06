@@ -17,7 +17,7 @@ vet: ## Run go vet
 	@go vet ${PKG_LIST}
 
 test: ## Run unittests
-	@go test -short ${PKG_LIST}
+	@go test -short ./...
 
 test-coverage: ## Run tests with coverage
 	@go test -short -coverprofile cover.out -covermode=atomic ${PKG_LIST} 
