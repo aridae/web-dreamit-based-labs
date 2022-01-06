@@ -16,8 +16,14 @@ lint: ## Lint Golang files
 vet: ## Run go vet
 	@go vet ${PKG_LIST}
 
-test: ## Run unittests
-	@go test -short ./...
+test-unit: ## Run unit tests
+	@go go test --tags=unit ./...
+
+test-integration: ## Run integration tests
+	@go go test --tags=integration ./...
+
+test-e2e: ## Run e2e tests
+	@go go test --tags=e2e ./...
 
 test-coverage: ## Run tests with coverage
 	@go test -short -coverprofile cover.out -covermode=atomic ${PKG_LIST} 
