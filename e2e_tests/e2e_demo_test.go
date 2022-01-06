@@ -1,6 +1,3 @@
-//go:build e2e
-// +build e2e
-
 package e2e
 
 import (
@@ -17,6 +14,7 @@ import (
 
 	apiserver "github.com/aridae/web-dreamit-api-based-labs/internal/api_server/api_handlers"
 	"github.com/aridae/web-dreamit-api-based-labs/internal/api_server/apimodels"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/domain"
 	"github.com/aridae/web-dreamit-api-based-labs/pkg/tools/configer"
 
 	commentrepo "github.com/aridae/web-dreamit-api-based-labs/internal/data_access/comment_repo"
@@ -54,12 +52,12 @@ type E2ETestSuite struct {
 	CommentHandler *apiserver.CommentHandler
 	InviteHandler  *apiserver.InviteHandler
 
-	// EventController
-	// NotifyController
-	// RoomController
-	// UserController
-	// CommentController
-	// InviteController *invitecont.
+	EventController   *eventcont.EventController
+	NotifyController  *notifycont.NotifyController
+	RoomController    *roomcont.RoomController
+	UserController    *usercont.UserController
+	CommentController *commentcont.CommentController
+	InviteController  *invitecont.InviteController
 }
 
 func Test_E2ETestSuite(t *testing.T) {
@@ -116,6 +114,13 @@ func (s *E2ETestSuite) SetupSuite() {
 	notifyController := notifycont.NewNotifyController(notifyRepo)
 	commentController := commentcont.NewCommentController(commentRepo)
 
+	s.EventController = eventController
+	s.NotifyController = notifyController
+	s.RoomController = roomController
+	s.UserController = userController
+	s.CommentController = commentController
+	s.InviteController = inviteController
+
 	commentHandler := apiserver.NewCommentHandler(commentController, sessionController)
 	notifyHandler := apiserver.NewNotifyHandler(notifyController, sessionController)
 	inviteHandler := apiserver.NewInviteHandler(inviteController, sessionController)
@@ -160,7 +165,6 @@ func (s *E2ETestSuite) RegisterUser(usr apimodels.SignupUserRequest) string {
 	return token.AccessToken
 }
 
-func BookEvent()
 func (s *E2ETestSuite) Test_E2EDemo() {
 	// регистрируем двух пользователей
 	testAuthor_01 := apimodels.SignupUserRequest{
@@ -181,42 +185,42 @@ func (s *E2ETestSuite) Test_E2EDemo() {
 	s.Assert().NotEmpty(token_02)
 	log.Printf("registered user with token: %s\n", token_02)
 
-	// // создаем ивент
-	// testEvent := domain.PostEvent{
-	// 	End:      "2021-12-03 12:00",
-	// 	RoomId:   1,
-	// 	Start:    "2021-12-03 11:00",
-	// 	Title:    "Confa!",
-	// 	AuthorId: 1,
-	// }
-	// eventId, err := s.EventController.AddRoomEvent(testEvent)
-	// s.Assert().NoError(err)
+	// создаем ивент
+	testEvent := domain.PostEvent{
+		End:      "2021-12-03 12:00",
+		RoomId:   1,
+		Start:    "2021-12-03 11:00",
+		Title:    "Confa!",
+		AuthorId: 1,
+	}
+	eventId, err := s.EventController.AddRoomEvent(testEvent)
+	s.Assert().NoError(err)
 
-	// // берем токен одного пользователя и
-	// // от его имени создаем
-	// // инвайт другому пользователю
-	// testInvite := domain.PostInvite{
-	// 	ReceiverId: 2,
-	// 	EventId:    eventId,
-	// }
-	// _, err = s.InviteController.CreateInvite(testInvite)
-	// s.Assert().NoError(err)
+	// берем токен одного пользователя и
+	// от его имени создаем
+	// инвайт другому пользователю
+	testInvite := domain.PostInvite{
+		ReceiverId: 2,
+		EventId:    eventId,
+	}
+	_, err = s.InviteController.CreateInvite(testInvite)
+	s.Assert().NoError(err)
 
-	// // создаем нотифай
-	// testNotify := domain.PostNotify{
-	// 	Subject: "test subject",
-	// 	EventId: eventId,
-	// 	Message: "Upd: все приходят в пижамах",
-	// }
-	// _, err = s.NotifyController.CreateNotify(testNotify)
-	// s.Assert().NoError(err)
+	// создаем нотифай
+	testNotify := domain.PostNotify{
+		Subject: "test subject",
+		EventId: eventId,
+		Message: "Upd: все приходят в пижамах",
+	}
+	_, err = s.NotifyController.CreateNotify(testNotify)
+	s.Assert().NoError(err)
 
-	// // создаем коммент
-	// testComment := domain.PostComment{
-	// 	AuthorId: 1,
-	// 	NotifyId: 1,
-	// 	Message:  "класс люблю пижамы",
-	// }
-	// _, err = s.CommentController.CreateComment(testComment)
-	// s.Assert().NoError(err)
+	// создаем коммент
+	testComment := domain.PostComment{
+		AuthorId: 1,
+		NotifyId: 1,
+		Message:  "класс люблю пижамы",
+	}
+	_, err = s.CommentController.CreateComment(testComment)
+	s.Assert().NoError(err)
 }
