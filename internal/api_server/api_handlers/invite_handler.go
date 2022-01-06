@@ -208,7 +208,7 @@ func (handler InviteHandler) GetInvite(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_GET_INVITE, err),
+				Message: fmt.Sprintf(FAILURE_GET_INVITE, "invalid parameters"),
 			}, http.StatusBadRequest) // 400
 		return
 	}
@@ -217,7 +217,7 @@ func (handler InviteHandler) GetInvite(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http_utils.SetJSONResponse(w,
 			apimodels.MessageResponse{
-				Message: fmt.Sprintf(FAILURE_GET_INVITE, err),
+				Message: fmt.Sprintf(FAILURE_GET_INVITE, "invalid parameters"),
 			}, http.StatusNotFound) // 404
 		return
 	}

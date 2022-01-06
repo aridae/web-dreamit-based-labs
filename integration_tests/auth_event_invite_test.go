@@ -21,6 +21,7 @@ import (
 
 	commentcont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/comment_controller"
 	eventcont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/event_controller"
+	invitecont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/invite_controller"
 	notifycont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/notify_controller"
 	roomcont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/room_controller"
 	usercont "github.com/aridae/web-dreamit-api-based-labs/internal/controllers/user_controller"
@@ -41,6 +42,7 @@ type EventXInviteTestSuite struct {
 	RoomController    *roomcont.RoomController
 	UserController    *usercont.UserController
 	CommentController *commentcont.CommentController
+	InviteController  *invitecont.InviteController
 }
 
 func TestEventXInviteTestSuite(t *testing.T) {
@@ -116,7 +118,7 @@ func (s *EventXInviteTestSuite) Test_EventXNotify_CreateNotify() {
 	s.Assert().NoError(err)
 }
 
-func (s *EventXInviteTestSuite) Test_EventXNotify_CommentNotify() {
+func (s *EventXInviteTestSuite) Test_EventXInvite_CreateInvite() {
 	// создаем ивент
 	testEvent := domain.PostEvent{
 		End:      "2021-12-03 12:00",
@@ -128,21 +130,15 @@ func (s *EventXInviteTestSuite) Test_EventXNotify_CommentNotify() {
 	eventId, err := s.EventController.AddRoomEvent(testEvent)
 	s.Assert().NoError(err)
 
-	// создаем нотифай
-	testNotify := domain.PostNotify{
-		Subject: "test subject",
-		EventId: eventId,
-		Message: "Upd: все приходят в пижамах",
+	// создаем инвайт
+	testInvite := domain.PostInvite{
+		ReceiverId: 2,
+		EventId:    eventId,
 	}
-	_, err = s.NotifyController.CreateNotify(testNotify)
+	_, err = s.InviteController.CreateInvite(testInvite)
 	s.Assert().NoError(err)
 
-	// создаем коммент
-	testComment := domain.PostComment{
-		AuthorId: 1,
-		NotifyId: 1,
-		Message:  "класс люблю пижамы",
-	}
-	_, err = s.CommentController.CreateComment(testComment)
-	s.Assert().NoError(err)
+	// принимаем инвайт
+	//err = s.InviteController.AcceptInvite(inviteId)
+	//s.Assert().NoError(err)
 }

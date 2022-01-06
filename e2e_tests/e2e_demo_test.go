@@ -153,6 +153,7 @@ func (s *E2ETestSuite) RegisterUser(usr apimodels.SignupUserRequest) string {
 	return token.AccessToken
 }
 
+func BookEvent()
 func (s *E2ETestSuite) Test_E2EDemo() {
 	// регистрируем двух пользователей
 	testAuthor_01 := apimodels.SignupUserRequest{
@@ -173,31 +174,42 @@ func (s *E2ETestSuite) Test_E2EDemo() {
 	s.Assert().NotEmpty(token_02)
 	log.Printf("registered user with token: %s\n", token_02)
 
+	// создаем ивент
+	testEvent := domain.PostEvent{
+		End:      "2021-12-03 12:00",
+		RoomId:   1,
+		Start:    "2021-12-03 11:00",
+		Title:    "Confa!",
+		AuthorId: 1,
+	}
+	eventId, err := s.EventController.AddRoomEvent(testEvent)
+	s.Assert().NoError(err)
+
 	// берем токен одного пользователя и
 	// от его имени создаем
 	// инвайт другому пользователю
+	testInvite := domain.PostInvite{
+		ReceiverId: 2,
+		EventId:    eventId,
+	}
+	_, err = s.InviteController.CreateInvite(testInvite)
+	s.Assert().NoError(err)
 
-	// от лица другого пользователя принимает инвайт
+	// создаем нотифай
+	testNotify := domain.PostNotify{
+		Subject: "test subject",
+		EventId: eventId,
+		Message: "Upd: все приходят в пижамах",
+	}
+	_, err = s.NotifyController.CreateNotify(testNotify)
+	s.Assert().NoError(err)
 
-	// от лица первого пользователя создаем нотифай
-
-	// от лица второго пользователя комментирует нотифай
-
-	// создаем ивент
-	// testEvent := domain.PostEvent{
-	// 	End:    "2021-12-03 12:00",
-	// 	RoomId: 1,
-	// 	Start:  "2021-12-03 11:00",
-	// 	Title:  "Confa!",
-	// }
-	// s.NoError(err)
-
-	// // создаем нотифай
-	// testNotify := domain.PostNotify{
-	// 	Subject: "test subject",
-	// 	EventId: eventId,
-	// 	Message: "Upd: все приходят в пижамах",
-	// }
-	// _, err = s.NotifyController.CreateNotify(testNotify)
-	// s.NoError(err)
+	// создаем коммент
+	testComment := domain.PostComment{
+		AuthorId: 1,
+		NotifyId: 1,
+		Message:  "класс люблю пижамы",
+	}
+	_, err = s.CommentController.CreateComment(testComment)
+	s.Assert().NoError(err)
 }

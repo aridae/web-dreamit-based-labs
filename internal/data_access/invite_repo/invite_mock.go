@@ -4,13 +4,39 @@
 package inviterepo
 
 import (
-	"github.com/aridae/web-dreamit-api-based-labs/internal/domain"
 	"sync"
+
+	"github.com/aridae/web-dreamit-api-based-labs/internal/api_server/apimodels"
+	"github.com/aridae/web-dreamit-api-based-labs/internal/domain"
 )
 
 // Ensure, that RepositoryMock does implement Repository.
 // If this is not the case, regenerate this file with moq.
 var _ Repository = &RepositoryMock{}
+
+var (
+	CurrentInviteId   int64            = 1
+	MockInvites []domain.Invite = []domain.Invite{
+		{
+			Id:       0,
+			EventId: 0,
+			ReceiverId: 0,
+			StatusId: 0,
+		},
+		{
+			Id:       1,
+			EventId: 1,
+			ReceiverId: 0,
+			StatusId: 0,
+		},
+	}
+
+	MockPostInvite apimodels.PostInvite = apimodels.PostInvite{
+		EventId: 1,
+		ReceiverId: 1,
+	}
+)
+
 
 type RepositoryMock struct {
 	// CreateInviteFunc mocks the CreateInvite method.
@@ -103,6 +129,22 @@ type RepositoryMock struct {
 	lockGetStatusInvitesByEventId    sync.RWMutex
 	lockUpdateInviteStatusById       sync.RWMutex
 	lockUpdateInvitesStatusByEventId sync.RWMutex
+}
+
+func getInviteById(inviteId int64) (*domain.Invite, error) {
+	return &MockInvites[inviteId], nil
+}
+
+func createInvite(invite domain.PostInvite) (int64, error) {
+	CurrentInviteId++
+	return CurrentInviteId, nil
+}
+
+func NewRepositoryMock() *RepositoryMock {
+	return &RepositoryMock{
+		GetInviteByIdFunc: getInviteById,
+		CreateInviteFunc: createInvite,
+	}
 }
 
 // CreateInvite calls CreateInviteFunc.
