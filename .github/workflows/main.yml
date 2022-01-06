@@ -39,14 +39,19 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v1
 
+      # Unit 
       - name: Run Unit tests.
         run: make test-unit
-      
-      # - name: Upload Coverage report to CodeCov
-      #   uses: codecov/codecov-action@v1.0.0
-      #   with:
-      #     token: ${{secrets.CODECOV_TOKEN}}
-      #     file: ./coverage.txt
+
+      - name: Build the docker-compose TESTING stack
+        run: make up-testing-containers
+
+      # Integrational
+      - name: Run Integration tests.
+        run: make test-integration
+
+      - name: Stop the docker-compose TESTING stack
+        run: make down-testing-containers
 
   build:
     name: Build
