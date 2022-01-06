@@ -12,6 +12,24 @@ import (
 // If this is not the case, regenerate this file with moq.
 var _ Repository = &RepositoryMock{}
 
+var (
+	CurrUserId = 2
+	MockUsers []domain.UserData = []domain.UserData{
+		{
+			Id: 0,
+			Email: "some@email.ru",
+			Login: "MockUser_01",
+			Password: []byte("superPass24537"),
+		},
+		{
+			Id: 1,
+			Email: "some222@email.ru",
+			Login: "MockUser_01",
+			Password: []byte("superDDHDH24537"),
+		},
+	}
+)
+
 type RepositoryMock struct {
 	// DeleteSelfProfileFunc mocks the DeleteSelfProfile method.
 	DeleteSelfProfileFunc func(userId uint64) error
@@ -90,8 +108,14 @@ type RepositoryMock struct {
 	lockSelectUserById           sync.RWMutex
 }
 
+func insertUser(user *domain.UserData) (uint64, error) {
+	CurrUserId++
+	return uint64(CurrUserId), nil
+}
+
 func NewRepositoryMock() *RepositoryMock {
 	return &RepositoryMock{
+		InsertUserFunc: insertUser,
 	}
 }
 

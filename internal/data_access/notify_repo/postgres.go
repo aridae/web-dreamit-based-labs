@@ -1,8 +1,6 @@
 package notifyrepo
 
 import (
-	"fmt"
-
 	db "github.com/aridae/web-dreamit-api-based-labs/internal/database"
 	"github.com/aridae/web-dreamit-api-based-labs/internal/domain"
 	"github.com/lib/pq"
@@ -89,7 +87,7 @@ func (r *PostgresqlRepository) GetTagsForNotify(notifyId int64) ([]string, error
 func (r *PostgresqlRepository) CreateNotify(notify domain.PostNotify) (int64, error) {
 	queryRow := "INSERT INTO notifies(eventId, message, subject) " +
 		"VALUES ($1, $2, $3) RETURNING id"
-	row := r.db.Client.QueryRow(queryRow, notify.EventId, notify.Message)
+	row := r.db.Client.QueryRow(queryRow, notify.EventId, notify.Message, notify.Subject)
 	if err := row.Err(); err != nil {
 		return 0, err
 	}
@@ -99,16 +97,16 @@ func (r *PostgresqlRepository) CreateNotify(notify domain.PostNotify) (int64, er
 		return 0, nil
 	}
 
-	queryRow = fmt.Sprintf("INSERT INTO notify_tags(notifyId, tag) "+
-		"VALUES (%d, %s), ", id, notify.Tags[0])
-	for i := 1; i < len(notify.Tags); i++ {
-		queryRow += fmt.Sprintf("VALUES (%d, %s), ", id, notify.Tags[i])
-	}
+	// queryRow = fmt.Sprintf("INSERT INTO notify_tags(notifyId, tag) "+
+	// 	"VALUES (%d, %s), ", id, notify.Tags[0])
+	// for i := 1; i < len(notify.Tags); i++ {
+	// 	queryRow += fmt.Sprintf("VALUES (%d, %s), ", id, notify.Tags[i])
+	// }
 
-	row = r.db.Client.QueryRow(queryRow)
-	if err := row.Err(); err != nil {
-		return 0, err
-	}
+	// row = r.db.Client.QueryRow(queryRow)
+	// if err := row.Err(); err != nil {
+	// 	return 0, err
+	// }
 
 	return id, nil
 }

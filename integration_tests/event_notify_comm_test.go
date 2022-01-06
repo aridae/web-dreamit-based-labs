@@ -1,7 +1,7 @@
 //go:build integration
 // +build integration
 
-package integrationtests
+package integration_tests
 
 import (
 	"context"
@@ -34,6 +34,7 @@ import (
 // в т.ч. взаимодействие с бд
 type EventXNotifyTestSuite struct {
 	suite.Suite
+	postgresClient *database.PostgresClient
 
 	EventController   *eventcont.EventController
 	NotifyController  *notifycont.NotifyController
@@ -56,12 +57,12 @@ func (s *EventXNotifyTestSuite) SetupSuite() {
 		DB:       "dreamit_api_db",
 	})
 	s.Require().NoError(err)
-	defer postgresClient.ClosePostgresClient()
+	s.postgresClient = postgresClient
 
 	//sessionRepo := sessionrepo.NewRepositoryMock() // мокаем
 	eventRepo := eventrepo.NewSessionPostgresqlRepository(postgresClient)
-	userRepo := userrepo.NewRepositoryMock() // мокаем
-	roomRepo := roomrepo.NewRepositoryMock() // мокаем
+	userRepo := userrepo.NewSessionPostgresqlRepository(postgresClient)
+	roomRepo := roomrepo.NewSessionPostgresqlRepository(postgresClient)
 	notifyRepo := notifyrepo.NewSessionPostgresqlRepository(postgresClient)
 	commentRepo := commentrepo.NewSessionPostgresqlRepository(postgresClient)
 
@@ -80,6 +81,8 @@ func (s *EventXNotifyTestSuite) SetupSuite() {
 }
 
 func (s *EventXNotifyTestSuite) TearDownSuit() {
+	s.postgresClient.ClosePostgresClient()
+
 	p, _ := os.FindProcess(syscall.Getpid())
 	p.Signal(syscall.SIGINT)
 }
@@ -92,20 +95,21 @@ func (s *EventXNotifyTestSuite) TearDownTest() {
 
 func (s *EventXNotifyTestSuite) Test_EventXNotify_CreateNotify() {
 	// берем автора
-	testAuthor := &domain.SignupUserData{
-		Email:    "test333eee@mail.ru",
-		Login:    "Fasfsfsqwert444seseses",
-		Password: "HHHfTAAAfg6333",
-	}
-	_, err := s.UserController.SignUp(testAuthor)
-	s.Assert().NoError(err)
+	// testAuthor := &domain.SignupUserData{
+	// 	Email:    "test333eee@mail.ru",
+	// 	Login:    "Fasfsfsqwert444seseses",
+	// 	Password: "HHHfTAAAfg6333",
+	// }
+	// _, err := s.UserController.SignUp(testAuthor)
+	// s.Assert().NoError(err)
 
 	// создаем ивент
 	testEvent := domain.PostEvent{
-		End:    "2021-12-03 12:00",
-		RoomId: 1,
-		Start:  "2021-12-03 11:00",
-		Title:  "Confa!",
+		AuthorId: 1,
+		End:      "2021-12-03 12:00",
+		RoomId:   1,
+		Start:    "2021-12-03 11:00",
+		Title:    "Confa!",
 	}
 	eventId, err := s.EventController.AddRoomEvent(testEvent)
 	s.Assert().NoError(err)
@@ -121,21 +125,13 @@ func (s *EventXNotifyTestSuite) Test_EventXNotify_CreateNotify() {
 }
 
 func (s *EventXNotifyTestSuite) Test_EventXNotify_CommentNotify() {
-	// берем автора
-	testAuthor := &domain.SignupUserData{
-		Email:    "test333eee@mail.ru",
-		Login:    "Fasfsfsqwert444seseses",
-		Password: "HHHfTAAAfg6333",
-	}
-	userId, err := s.UserController.SignUp(testAuthor)
-	s.Assert().NoError(err)
-
 	// создаем ивент
 	testEvent := domain.PostEvent{
-		End:    "2021-12-03 12:00",
-		RoomId: 1,
-		Start:  "2021-12-03 11:00",
-		Title:  "Confa!",
+		AuthorId: 1,
+		End:      "2021-12-03 12:00",
+		RoomId:   1,
+		Start:    "2021-12-03 11:00",
+		Title:    "Confa!",
 	}
 	eventId, err := s.EventController.AddRoomEvent(testEvent)
 	s.Assert().NoError(err)
@@ -146,13 +142,13 @@ func (s *EventXNotifyTestSuite) Test_EventXNotify_CommentNotify() {
 		EventId: eventId,
 		Message: "Upd: все приходят в пижамах",
 	}
-	notifyId, err := s.NotifyController.CreateNotify(testNotify)
+	_, err = s.NotifyController.CreateNotify(testNotify)
 	s.Assert().NoError(err)
 
 	// создаем коммент
 	testComment := domain.PostComment{
-		AuthorId: userId,
-		NotifyId: notifyId,
+		AuthorId: 1,
+		NotifyId: 1,
 		Message:  "класс люблю пижамы",
 	}
 	_, err = s.CommentController.CreateComment(testComment)

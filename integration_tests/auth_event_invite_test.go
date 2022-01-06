@@ -1,7 +1,7 @@
 //go:build integration
 // +build integration
 
-package integrationtests
+package integration_tests
 
 import (
 	"context"
@@ -34,6 +34,7 @@ import (
 // в т.ч. взаимодействие с бд
 type EventXInviteTestSuite struct {
 	suite.Suite
+	postgresClient *database.PostgresClient
 
 	EventController   *eventcont.EventController
 	NotifyController  *notifycont.NotifyController
@@ -42,11 +43,11 @@ type EventXInviteTestSuite struct {
 	CommentController *commentcont.CommentController
 }
 
-func RunEventXInviteTestSuite(t *testing.T) {
+func TestEventXInviteTestSuite(t *testing.T) {
 	suite.Run(t, &EventXInviteTestSuite{})
 }
 
-func (s *EventXInviteTestSuite) SetupEventXInviteTestSuite() {
+func (s *EventXInviteTestSuite) SetupSuite() {
 	//configer.Init("./test_api_server.yaml")
 	postgresClient, err := database.NewPostgresClient(context.Background(), &database.Options{
 		Host:     "localhost",
@@ -58,12 +59,12 @@ func (s *EventXInviteTestSuite) SetupEventXInviteTestSuite() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer postgresClient.ClosePostgresClient()
+	s.postgresClient = postgresClient
 
 	//sessionRepo := sessionrepo.NewRepositoryMock() // мокаем
 	eventRepo := eventrepo.NewSessionPostgresqlRepository(postgresClient)
-	userRepo := userrepo.NewRepositoryMock() // мокаем
-	roomRepo := roomrepo.NewRepositoryMock() // мокаем
+	userRepo := userrepo.NewSessionPostgresqlRepository(postgresClient)
+	roomRepo := roomrepo.NewSessionPostgresqlRepository(postgresClient)
 	notifyRepo := notifyrepo.NewSessionPostgresqlRepository(postgresClient)
 	commentRepo := commentrepo.NewSessionPostgresqlRepository(postgresClient)
 
@@ -81,30 +82,29 @@ func (s *EventXInviteTestSuite) SetupEventXInviteTestSuite() {
 	s.CommentController = commentController
 }
 
-func (s *EventXInviteTestSuite) TearDownEventXInviteTestSuite() {
+func (s *EventXInviteTestSuite) TearDownSuite() {
+	s.postgresClient.ClosePostgresClient()
 	p, _ := os.FindProcess(syscall.Getpid())
 	p.Signal(syscall.SIGINT)
 }
 
-func (s *EventXInviteTestSuite) Test_EventXNotify_CreateNotify() {
-	// берем автора
-	testAuthor := &domain.SignupUserData{
-		Email:    "test333eee@mail.ru",
-		Login:    "Fasfsfsqwert444seseses",
-		Password: "HHHfTAAAfg6333",
-	}
-	_, err := s.UserController.SignUp(testAuthor)
-	s.NoError(err)
+func (s *EventXInviteTestSuite) SetupTest() {
+}
 
+func (s *EventXInviteTestSuite) TearDownTest() {
+}
+
+func (s *EventXInviteTestSuite) Test_EventXNotify_CreateNotify() {
 	// создаем ивент
 	testEvent := domain.PostEvent{
-		End:    "2021-12-03 12:00",
-		RoomId: 1,
-		Start:  "2021-12-03 11:00",
-		Title:  "Confa!",
+		AuthorId: 1,
+		End:      "2021-12-03 12:00",
+		RoomId:   1,
+		Start:    "2021-12-03 11:00",
+		Title:    "Confa!",
 	}
 	eventId, err := s.EventController.AddRoomEvent(testEvent)
-	s.NoError(err)
+	s.Assert().NoError(err)
 
 	// создаем нотифай
 	testNotify := domain.PostNotify{
@@ -113,28 +113,20 @@ func (s *EventXInviteTestSuite) Test_EventXNotify_CreateNotify() {
 		Message: "Upd: все приходят в пижамах",
 	}
 	_, err = s.NotifyController.CreateNotify(testNotify)
-	s.NoError(err)
+	s.Assert().NoError(err)
 }
 
 func (s *EventXInviteTestSuite) Test_EventXNotify_CommentNotify() {
-	// берем автора
-	testAuthor := &domain.SignupUserData{
-		Email:    "test333eee@mail.ru",
-		Login:    "Fasfsfsqwert444seseses",
-		Password: "HHHfTAAAfg6333",
-	}
-	userId, err := s.UserController.SignUp(testAuthor)
-	s.NoError(err)
-
 	// создаем ивент
 	testEvent := domain.PostEvent{
-		End:    "2021-12-03 12:00",
-		RoomId: 1,
-		Start:  "2021-12-03 11:00",
-		Title:  "Confa!",
+		End:      "2021-12-03 12:00",
+		RoomId:   1,
+		Start:    "2021-12-03 11:00",
+		Title:    "Confa!",
+		AuthorId: 1,
 	}
 	eventId, err := s.EventController.AddRoomEvent(testEvent)
-	s.NoError(err)
+	s.Assert().NoError(err)
 
 	// создаем нотифай
 	testNotify := domain.PostNotify{
@@ -142,15 +134,15 @@ func (s *EventXInviteTestSuite) Test_EventXNotify_CommentNotify() {
 		EventId: eventId,
 		Message: "Upd: все приходят в пижамах",
 	}
-	notifyId, err := s.NotifyController.CreateNotify(testNotify)
-	s.NoError(err)
+	_, err = s.NotifyController.CreateNotify(testNotify)
+	s.Assert().NoError(err)
 
 	// создаем коммент
 	testComment := domain.PostComment{
-		AuthorId: userId,
-		NotifyId: notifyId,
+		AuthorId: 1,
+		NotifyId: 1,
 		Message:  "класс люблю пижамы",
 	}
 	_, err = s.CommentController.CreateComment(testComment)
-	s.NoError(err)
+	s.Assert().NoError(err)
 }

@@ -5,10 +5,10 @@ go 1.15
 require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/docker/go-connections v0.4.0
 	github.com/go-openapi/spec v0.20.4 // indirect
 	github.com/go-park-mail-ru/2021_1_DuckLuck v0.0.0-20210527194921-0d2a8e04eab8
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gofrs/uuid v4.1.0+incompatible
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/gorilla/mux v1.8.0
@@ -23,7 +23,6 @@ require (
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/swaggo/http-swagger v1.1.2
 	github.com/swaggo/swag v1.7.4
-	github.com/testcontainers/testcontainers-go v0.12.0
 	github.com/twinj/uuid v1.0.0
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect

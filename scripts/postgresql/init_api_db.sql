@@ -53,6 +53,10 @@ CREATE TABLE users (
    CONSTRAINT login_unique UNIQUE (login)
 );
 GRANT ALL PRIVILEGES ON TABLE users TO dreamit_root;
+INSERT INTO users(login, email, password) VALUES ('user_login_01', 'dummy_email_01@mail.ru', 'SoMePassWorD2007');
+INSERT INTO users(login, email, password) VALUES ('user_login_02', 'dummy_email_02@mail.ru', 'SoMePassWorD2007');
+INSERT INTO users(login, email, password) VALUES ('user_login_03', 'dummy_email_03@mail.ru', 'SoMePassWorD2007');
+INSERT INTO users(login, email, password) VALUES ('user_login_04', 'dummy_email_04@mail.ru', 'SoMePassWorD2007');
 
 -- List of auth services in app
 DROP TABLE IF EXISTS auth_services CASCADE;

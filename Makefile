@@ -17,13 +17,13 @@ vet: ## Run go vet
 	@go vet ${PKG_LIST}
 
 test-unit: ## Run unit tests
-	@go test --tags=unit ./...
+	@go test -v -p 1 --tags=unit ./...
 
 test-integration: ## Run integration tests
-	@go test --tags=integration ./...
+	@go test -v -p 1 --tags=integration ./...
 
 test-e2e: ## Run e2e tests
-	@go test --tags=e2e ./...
+	@go test -v -p 1 --tags=e2e ./...
 
 test-coverage: ## Run tests with coverage
 	@go test -short -coverprofile cover.out -covermode=atomic ${PKG_LIST} 
@@ -58,6 +58,14 @@ up-testing-containers:
 down-testing-containers:
 	docker-compose down
 
+.PHONY: armageddon
+armageddon:
+	-make remove_containers
+	-docker builder prune -f
+	-docker network prune -f
+	-docker volume rm $$(docker volume ls --filter dangling=true -q)
+	-docker rmi $$(docker images -a -q) -f
+
 # .PHONY: remove_containers
 # remove_containers:
 # 	-docker stop $$(docker ps -aq)
@@ -65,13 +73,6 @@ down-testing-containers:
 # .PHONY: integration_test
 # integration_test:
 # 	go test -tags=integration ./integration_tests -count=1 -run=$(INTEGRATION_TEST_SUITE_PATH) 
-# .PHONY: armageddon
-# armageddon:
-# 	-make remove_containers
-# 	-docker builder prune -f
-# 	-docker network prune -f
-# 	-docker volume rm $$(docker volume ls --filter dangling=true -q)
-# 	-docker rmi $$(docker images -a -q) -f
 # .PHONY: test
 # test:
 # 	go test ./...
@@ -80,5 +81,4 @@ down-testing-containers:
 # 	go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
 # 	cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v models > cover.out
 # 	go tool cover -func cover.out && go tool cover -html cover.out
-
 # .DEFAULT_GOAL := run_local
